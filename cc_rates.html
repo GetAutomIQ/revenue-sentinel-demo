@@ -1,0 +1,893 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Revenue Sentinel — Rates</title><link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet"><style>
+:root{
+  --bg:#070d14; --surface:#0d1520; --surface2:#111c2b;
+  --border:#1a2e48; --border2:#243d5e;
+  --blue:#2e7de9; --green:#00e5a0; --orange:#ff8c42; --purple:#9b6dff; --red:#ff4f6a;
+  --text:#d8e8f8; --text-dim:#6888a8; --text-muted:#2a4060;
+  --radius:12px;
+  --sans:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="light"]{
+  --bg:#ede8de; --surface:#fdfcf9; --surface2:#f5f2ec;
+  --border:#e4ddcf; --border2:#d8cfbd;
+  --blue:#b5924a; --green:#5a7d5a; --orange:#c0883c; --purple:#9c7f6a; --red:#a85a4a;
+  --text:#1a1a18; --text-dim:#5a5a52; --text-muted:#9a9182;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);padding:20px 22px 60px;line-height:1.45}
+h1{font-family:var(--serif);font-weight:400;font-size:22px;margin-bottom:4px}
+.note{font-size:11.5px;color:var(--text-muted);font-family:var(--mono);margin-bottom:14px;max-width:900px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin-bottom:16px;font-family:var(--mono);
+  font-size:10.5px;color:var(--text-dim)}
+.legend .lg{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.calwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:980px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;min-width:640px}
+.dow{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text-muted);text-align:center;padding:2px 0 4px}
+.cell{aspect-ratio:1/1;min-height:104px;cursor:pointer;perspective:1000px;outline:none}
+.cell.blank{cursor:default;pointer-events:none}
+.cell:focus-visible .inner{box-shadow:0 0 0 2px var(--c)}
+.inner{position:relative;width:100%;height:100%;transition:transform .5s;transform-style:preserve-3d;border-radius:var(--radius)}
+.cell.flipped .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border-radius:var(--radius);border:1px solid;padding:9px 10px;display:flex;flex-direction:column}
+.front{background:color-mix(in srgb,var(--c) 13%,var(--surface));
+  border-color:color-mix(in srgb,var(--c) 42%,var(--border));
+  border-left:3px solid var(--c)}
+.cell.planned .front{border-left-style:dashed}
+.front .chd{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
+.front .wd{font-family:var(--mono);font-size:11px;color:var(--c);text-transform:uppercase;letter-spacing:.5px;font-weight:500}
+.front .dt{font-family:var(--mono);font-size:11px;color:var(--c)}
+.front .rate{font-family:var(--serif);font-size:22px;color:var(--c);margin-top:auto;line-height:1}
+.front .rate .unset{font-family:var(--mono);font-size:12px;color:var(--text-muted);font-style:italic}
+.front .tap{font-family:var(--mono);font-size:8.5px;color:var(--text-muted);text-transform:uppercase;
+  letter-spacing:.4px;margin-top:5px}
+.back{background:var(--surface2);border-color:color-mix(in srgb,var(--c) 42%,var(--border2));
+  transform:rotateY(180deg);overflow:hidden}
+.back .bhd{font-family:var(--mono);font-size:10px;color:var(--c);text-transform:uppercase;
+  letter-spacing:.5px;margin-bottom:5px}
+.back dl{font-family:var(--mono);font-size:10.5px}
+.back dl>div{display:flex;justify-content:space-between;gap:8px;padding:1.5px 0}
+.back dt{color:var(--text-dim)} .back dd{color:var(--text);font-weight:500}
+.empty{font-family:var(--mono);font-size:13px;color:var(--text-dim);padding:20px 0}
+/* Modal / enlarge-on-open (FLIP-animated from the grid cell to screen centre) */
+.backdrop{position:fixed;inset:0;background:rgba(3,7,12,.72);opacity:0;pointer-events:none;
+  transition:opacity .35s;z-index:90}
+.backdrop.show{opacity:1;pointer-events:auto}
+.cell.active{position:fixed;z-index:100;width:min(360px,92vw);height:min(80vh,430px);
+  aspect-ratio:auto;min-height:0;cursor:default}
+.cell.active .back{padding:22px 24px;overflow:auto}
+.cell.active .back .bhd{font-size:13px;margin-bottom:14px}
+.cell.active .back dl{font-size:14px}
+.cell.active .back dl>div{padding:5px 0;border-bottom:1px solid color-mix(in srgb,var(--c) 12%,transparent)}
+.cell.active .back dl>div:last-child{border-bottom:none}
+@media(max-width:560px){
+  body{padding-left:14px;padding-right:14px}
+  .front .rate{font-size:18px}
+  .cell.active .back dl{font-size:13px}
+}
+</style></head><body>
+<h1>Rates</h1>
+<div class="note">Our rate (BAR2026) vs market — next 30 days · built 2026-08-05 20:24.
+Single master rate code (DBL anchor); all-room-type × 180-day view is a later phase. Days beyond the live channel window show the 6-month forward plan (marked “plan”) — 15 of 30 days here.
+Tap a day to see its full KPIs.</div>
+<div class="legend"><span class="lg"><i style="background:var(--red)"></i>significantly underpriced</span><span class="lg"><i style="background:var(--orange)"></i>underpriced</span><span class="lg"><i style="background:var(--green)"></i>at market</span><span class="lg"><i style="background:var(--blue)"></i>premium</span><span class="lg"><i style="background:var(--purple)"></i>significantly premium</span><span class="lg"><i style="background:var(--text-dim)"></i>rate not set</span></div>
+<div class="calwrap"><div class="cal"><div class="dow">Mon</div><div class="dow">Tue</div><div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div><div class="dow">Sat</div><div class="dow">Sun</div><div class="cell blank" aria-hidden="true"></div><div class="cell blank" aria-hidden="true"></div>
+    <div class="cell" style="--c:var(--purple)"
+         tabindex="0" role="button"
+         aria-label="Wed Aug 5, our rate ฿6,100, significantly premium, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Wed</span><span class="dt">Aug 5</span></div>
+          <div class="rate">฿6,100</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 5 · Wed</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--purple)">฿6,100</dd></div>
+            <div><dt>position</dt><dd>significantly premium</dd></div>
+            <div><dt>days out</dt><dd>0</dd></div>
+            <div><dt>rank</dt><dd>#2/4</dd></div>
+            <div><dt>market min</dt><dd>฿4,585</dd></div>
+            <div><dt>market avg</dt><dd>฿4,732.5</dd></div>
+            <div><dt>market max</dt><dd>฿24,649</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--purple)">+28.9%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Thu Aug 6, our rate ฿5,700, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Thu</span><span class="dt">Aug 6</span></div>
+          <div class="rate">฿5,700</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 6 · Thu</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿5,700</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>1</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿4,168</dd></div>
+            <div><dt>market avg</dt><dd>฿6,043.5</dd></div>
+            <div><dt>market max</dt><dd>฿14,746</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-5.7%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--green)"
+         tabindex="0" role="button"
+         aria-label="Fri Aug 7, our rate ฿6,400, at market, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Fri</span><span class="dt">Aug 7</span></div>
+          <div class="rate">฿6,400</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 7 · Fri</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--green)">฿6,400</dd></div>
+            <div><dt>position</dt><dd>at market</dd></div>
+            <div><dt>days out</dt><dd>2</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿4,933</dd></div>
+            <div><dt>market avg</dt><dd>฿6,588.0</dd></div>
+            <div><dt>market max</dt><dd>฿8,653</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--green)">-2.9%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Sat Aug 8, our rate ฿8,000, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sat</span><span class="dt">Aug 8</span></div>
+          <div class="rate">฿8,000</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 8 · Sat</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿8,000</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>3</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿4,484</dd></div>
+            <div><dt>market avg</dt><dd>฿8,521.0</dd></div>
+            <div><dt>market max</dt><dd>฿10,532</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-6.1%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--green)"
+         tabindex="0" role="button"
+         aria-label="Sun Aug 9, our rate ฿8,900, at market, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sun</span><span class="dt">Aug 9</span></div>
+          <div class="rate">฿8,900</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 9 · Sun</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--green)">฿8,900</dd></div>
+            <div><dt>position</dt><dd>at market</dd></div>
+            <div><dt>days out</dt><dd>4</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿5,488</dd></div>
+            <div><dt>market avg</dt><dd>฿8,913</dd></div>
+            <div><dt>market max</dt><dd>฿20,706</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--green)">-0.1%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--green)"
+         tabindex="0" role="button"
+         aria-label="Mon Aug 10, our rate ฿5,050, at market, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Mon</span><span class="dt">Aug 10</span></div>
+          <div class="rate">฿5,050</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 10 · Mon</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--green)">฿5,050</dd></div>
+            <div><dt>position</dt><dd>at market</dd></div>
+            <div><dt>days out</dt><dd>5</dd></div>
+            <div><dt>rank</dt><dd>#1/4</dd></div>
+            <div><dt>market min</dt><dd>฿4,257</dd></div>
+            <div><dt>market avg</dt><dd>฿5,072</dd></div>
+            <div><dt>market max</dt><dd>฿7,488</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--green)">-0.4%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Tue Aug 11, our rate ฿7,100, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Tue</span><span class="dt">Aug 11</span></div>
+          <div class="rate">฿7,100</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 11 · Tue</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿7,100</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>6</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,365</dd></div>
+            <div><dt>market avg</dt><dd>฿8,087.0</dd></div>
+            <div><dt>market max</dt><dd>฿14,630</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-12.2%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--green)"
+         tabindex="0" role="button"
+         aria-label="Wed Aug 12, our rate ฿5,050, at market, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Wed</span><span class="dt">Aug 12</span></div>
+          <div class="rate">฿5,050</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 12 · Wed</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--green)">฿5,050</dd></div>
+            <div><dt>position</dt><dd>at market</dd></div>
+            <div><dt>days out</dt><dd>7</dd></div>
+            <div><dt>rank</dt><dd>#3/5</dd></div>
+            <div><dt>market min</dt><dd>฿4,289</dd></div>
+            <div><dt>market avg</dt><dd>฿4,946.5</dd></div>
+            <div><dt>market max</dt><dd>฿6,522</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--green)">+2.1%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Thu Aug 13, our rate ฿8,100, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Thu</span><span class="dt">Aug 13</span></div>
+          <div class="rate">฿8,100</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 13 · Thu</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿8,100</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>8</dd></div>
+            <div><dt>rank</dt><dd>—</dd></div>
+            <div><dt>market min</dt><dd>฿8,520</dd></div>
+            <div><dt>market avg</dt><dd>฿8,995</dd></div>
+            <div><dt>market max</dt><dd>฿11,440</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-9.9%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--green)"
+         tabindex="0" role="button"
+         aria-label="Fri Aug 14, our rate ฿5,050, at market, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Fri</span><span class="dt">Aug 14</span></div>
+          <div class="rate">฿5,050</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 14 · Fri</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--green)">฿5,050</dd></div>
+            <div><dt>position</dt><dd>at market</dd></div>
+            <div><dt>days out</dt><dd>9</dd></div>
+            <div><dt>rank</dt><dd>—</dd></div>
+            <div><dt>market min</dt><dd>฿5,059</dd></div>
+            <div><dt>market avg</dt><dd>฿5,073</dd></div>
+            <div><dt>market max</dt><dd>฿24,384</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--green)">-0.5%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Sat Aug 15, our rate ฿4,750, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sat</span><span class="dt">Aug 15</span></div>
+          <div class="rate">฿4,750</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 15 · Sat</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿4,750</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>10</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿4,344</dd></div>
+            <div><dt>market avg</dt><dd>฿5,257.0</dd></div>
+            <div><dt>market max</dt><dd>฿7,488</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-9.6%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Sun Aug 16, our rate ฿6,400, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sun</span><span class="dt">Aug 16</span></div>
+          <div class="rate">฿6,400</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 16 · Sun</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿6,400</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>11</dd></div>
+            <div><dt>rank</dt><dd>#1/4</dd></div>
+            <div><dt>market min</dt><dd>฿4,630</dd></div>
+            <div><dt>market avg</dt><dd>฿6,787</dd></div>
+            <div><dt>market max</dt><dd>฿8,101</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-5.7%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Mon Aug 17, our rate ฿4,000, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Mon</span><span class="dt">Aug 17</span></div>
+          <div class="rate">฿4,000</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 17 · Mon</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿4,000</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>12</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,629</dd></div>
+            <div><dt>market avg</dt><dd>฿4,350.0</dd></div>
+            <div><dt>market max</dt><dd>฿6,522</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-8.0%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Tue Aug 18, our rate ฿3,950, underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Tue</span><span class="dt">Aug 18</span></div>
+          <div class="rate">฿3,950</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 18 · Tue</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿3,950</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>13</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,629</dd></div>
+            <div><dt>market avg</dt><dd>฿4,470.5</dd></div>
+            <div><dt>market max</dt><dd>฿7,226</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-11.6%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Wed Aug 19, our rate ฿3,900, significantly underpriced, live on channel">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Wed</span><span class="dt">Aug 19</span></div>
+          <div class="rate">฿3,900</div>
+          <div class="tap">tap for detail</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 19 · Wed</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿3,900</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>14</dd></div>
+            <div><dt>rank</dt><dd>—</dd></div>
+            <div><dt>market min</dt><dd>฿4,188</dd></div>
+            <div><dt>market avg</dt><dd>฿4,674</dd></div>
+            <div><dt>market max</dt><dd>฿15,650</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-16.6%</dd></div>
+            <div><dt>source</dt><dd>live on channel</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Thu Aug 20, our rate ฿3,750, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Thu</span><span class="dt">Aug 20</span></div>
+          <div class="rate">฿3,750</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 20 · Thu</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿3,750</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>15</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,354</dd></div>
+            <div><dt>market avg</dt><dd>฿7,059.5</dd></div>
+            <div><dt>market max</dt><dd>฿10,582</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-46.9%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Fri Aug 21, our rate ฿4,600, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Fri</span><span class="dt">Aug 21</span></div>
+          <div class="rate">฿4,600</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 21 · Fri</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿4,600</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>16</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,189</dd></div>
+            <div><dt>market avg</dt><dd>฿5,554.5</dd></div>
+            <div><dt>market max</dt><dd>฿9,391</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-17.2%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Sat Aug 22, our rate ฿4,400, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sat</span><span class="dt">Aug 22</span></div>
+          <div class="rate">฿4,400</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 22 · Sat</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿4,400</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>17</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,189</dd></div>
+            <div><dt>market avg</dt><dd>฿6,830.5</dd></div>
+            <div><dt>market max</dt><dd>฿8,897</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-35.6%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--green)"
+         tabindex="0" role="button"
+         aria-label="Sun Aug 23, our rate ฿4,250, at market, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sun</span><span class="dt">Aug 23</span></div>
+          <div class="rate">฿4,250</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 23 · Sun</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--green)">฿4,250</dd></div>
+            <div><dt>position</dt><dd>at market</dd></div>
+            <div><dt>days out</dt><dd>18</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,739</dd></div>
+            <div><dt>market avg</dt><dd>฿4,399.0</dd></div>
+            <div><dt>market max</dt><dd>฿6,481</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--green)">-3.4%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Mon Aug 24, our rate ฿3,700, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Mon</span><span class="dt">Aug 24</span></div>
+          <div class="rate">฿3,700</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 24 · Mon</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿3,700</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>19</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,629</dd></div>
+            <div><dt>market avg</dt><dd>฿5,180.5</dd></div>
+            <div><dt>market max</dt><dd>฿6,134</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-28.6%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Tue Aug 25, our rate ฿3,600, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Tue</span><span class="dt">Aug 25</span></div>
+          <div class="rate">฿3,600</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 25 · Tue</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿3,600</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>20</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,629</dd></div>
+            <div><dt>market avg</dt><dd>฿5,699.5</dd></div>
+            <div><dt>market max</dt><dd>฿7,719</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-36.8%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Wed Aug 26, our rate ฿3,700, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Wed</span><span class="dt">Aug 26</span></div>
+          <div class="rate">฿3,700</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 26 · Wed</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿3,700</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>21</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,134</dd></div>
+            <div><dt>market avg</dt><dd>฿5,504.5</dd></div>
+            <div><dt>market max</dt><dd>฿7,719</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-32.8%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Thu Aug 27, our rate ฿3,850, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Thu</span><span class="dt">Aug 27</span></div>
+          <div class="rate">฿3,850</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 27 · Thu</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿3,850</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>22</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,079</dd></div>
+            <div><dt>market avg</dt><dd>฿5,226.0</dd></div>
+            <div><dt>market max</dt><dd>฿6,961</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-26.3%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Fri Aug 28, our rate ฿4,300, underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Fri</span><span class="dt">Aug 28</span></div>
+          <div class="rate">฿4,300</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 28 · Fri</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿4,300</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>23</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,024</dd></div>
+            <div><dt>market avg</dt><dd>฿4,556.0</dd></div>
+            <div><dt>market max</dt><dd>฿6,191</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-5.6%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Sat Aug 29, our rate ฿4,100, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sat</span><span class="dt">Aug 29</span></div>
+          <div class="rate">฿4,100</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 29 · Sat</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿4,100</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>24</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,024</dd></div>
+            <div><dt>market avg</dt><dd>฿5,865.5</dd></div>
+            <div><dt>market max</dt><dd>฿8,481</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-30.1%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Sun Aug 30, our rate ฿3,900, underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Sun</span><span class="dt">Aug 30</span></div>
+          <div class="rate">฿3,900</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 30 · Sun</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿3,900</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>25</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿3,134</dd></div>
+            <div><dt>market avg</dt><dd>฿4,572.0</dd></div>
+            <div><dt>market max</dt><dd>฿6,000</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-14.7%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--orange)"
+         tabindex="0" role="button"
+         aria-label="Mon Aug 31, our rate ฿3,700, underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Mon</span><span class="dt">Aug 31</span></div>
+          <div class="rate">฿3,700</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Aug 31 · Mon</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--orange)">฿3,700</dd></div>
+            <div><dt>position</dt><dd>underpriced</dd></div>
+            <div><dt>days out</dt><dd>26</dd></div>
+            <div><dt>rank</dt><dd>#2/5</dd></div>
+            <div><dt>market min</dt><dd>฿2,969</dd></div>
+            <div><dt>market avg</dt><dd>฿4,311.5</dd></div>
+            <div><dt>market max</dt><dd>฿6,000</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--orange)">-14.2%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Tue Sep 1, our rate ฿2,150, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Tue</span><span class="dt">Sep 1</span></div>
+          <div class="rate">฿2,150</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Sep 1 · Tue</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿2,150</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>27</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿2,321</dd></div>
+            <div><dt>market avg</dt><dd>฿3,889.0</dd></div>
+            <div><dt>market max</dt><dd>฿5,083</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-44.7%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Wed Sep 2, our rate ฿2,200, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Wed</span><span class="dt">Sep 2</span></div>
+          <div class="rate">฿2,200</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Sep 2 · Wed</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿2,200</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>28</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿2,432</dd></div>
+            <div><dt>market avg</dt><dd>฿3,999.5</dd></div>
+            <div><dt>market max</dt><dd>฿5,083</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-45.0%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div>
+    <div class="cell planned" style="--c:var(--red)"
+         tabindex="0" role="button"
+         aria-label="Thu Sep 3, our rate ฿2,350, significantly underpriced, 6-month plan">
+      <div class="inner">
+        <div class="face front">
+          <div class="chd"><span class="wd">Thu</span><span class="dt">Sep 3</span></div>
+          <div class="rate">฿2,350</div>
+          <div class="tap">6-month plan · tap</div>
+        </div>
+        <div class="face back">
+          <div class="bhd">Sep 3 · Thu</div>
+          <dl>
+            <div><dt>our rate</dt><dd style="color:var(--red)">฿2,350</dd></div>
+            <div><dt>position</dt><dd>significantly underpriced</dd></div>
+            <div><dt>days out</dt><dd>29</dd></div>
+            <div><dt>rank</dt><dd>#1/5</dd></div>
+            <div><dt>market min</dt><dd>฿2,542</dd></div>
+            <div><dt>market avg</dt><dd>฿3,999.5</dd></div>
+            <div><dt>market max</dt><dd>฿5,083</dd></div>
+            <div><dt>vs avg</dt><dd style="color:var(--red)">-41.2%</dd></div>
+            <div><dt>source</dt><dd>6-month plan</dd></div>
+          </dl>
+        </div>
+      </div>
+    </div></div></div>
+<div class="backdrop" id="backdrop"></div>
+<script>
+(function(){
+  var backdrop = document.getElementById('backdrop');
+  var active = null;
+
+  function openCard(cell){
+    if(active && active !== cell) closeCard(active);
+    var inner = cell.querySelector('.inner');
+    var first = cell.getBoundingClientRect();
+    cell.classList.add('active');
+    // Centre it (explicit px so the FLIP maths below is plain translate+scale).
+    var w = cell.offsetWidth, h = cell.offsetHeight;
+    cell.style.left = Math.round((window.innerWidth  - w) / 2) + 'px';
+    cell.style.top  = Math.round(Math.max(8, (window.innerHeight - h) / 2)) + 'px';
+    var last = cell.getBoundingClientRect();
+    var dx = first.left - last.left, dy = first.top - last.top;
+    var sx = first.width / last.width, sy = first.height / last.height;
+    // Start state, no transition: park the card back over its grid slot, unflipped.
+    cell.style.transition = 'none';
+    inner.style.transition = 'none';
+    cell.style.transformOrigin = 'top left';
+    cell.style.transform = 'translate(' + dx + 'px,' + dy + 'px) scale(' + sx + ',' + sy + ')';
+    void cell.offsetWidth;  // force reflow to commit the start state (no rAF needed)
+    // End state, with transition: grow+centre the outer, flip the inner — together.
+    cell.style.transition = 'transform .45s cubic-bezier(.2,.7,.2,1)';
+    inner.style.transition = 'transform .5s';
+    cell.classList.add('flipped');
+    cell.style.transform = '';
+    backdrop.classList.add('show');
+    active = cell;
+  }
+
+  function closeCard(cell){
+    var inner = cell.querySelector('.inner');
+    cell.classList.remove('flipped');
+    cell.style.transition = 'transform .28s ease, opacity .28s ease';
+    cell.style.transformOrigin = 'center';
+    cell.style.transform = 'scale(.9)';
+    cell.style.opacity = '0';
+    backdrop.classList.remove('show');
+    setTimeout(function(){
+      cell.classList.remove('active');
+      cell.style.cssText = '';                // back to its grid slot
+      inner.style.transition = '';
+    }, 280);
+    active = null;
+  }
+
+  document.querySelectorAll('.cell:not(.blank)').forEach(function(cell){
+    function toggle(){ (cell === active) ? closeCard(cell) : openCard(cell); }
+    cell.addEventListener('click', toggle);
+    cell.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggle(); }
+    });
+  });
+  backdrop.addEventListener('click', function(){ if(active) closeCard(active); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && active) closeCard(active); });
+})();
+</script>
+</body></html>

@@ -1,0 +1,433 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Approvals — DEMO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#070d14; --surface:#0d1520; --surface2:#111c2b;
+  --border:#1a2e48; --border2:#243d5e;
+  --blue:#2e7de9; --green:#00e5a0; --orange:#ff8c42; --purple:#9b6dff; --red:#ff4f6a;
+  --text:#d8e8f8; --text-dim:#6888a8; --text-muted:#2a4060;
+  --radius:12px;
+  --sans:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="light"]{
+  --bg:#ede8de; --surface:#fdfcf9; --surface2:#f5f2ec;
+  --border:#e4ddcf; --border2:#d8cfbd;
+  --blue:#b5924a; --green:#5a7d5a; --orange:#c0883c; --purple:#9c7f6a; --red:#a85a4a;
+  --text:#1a1a18; --text-dim:#5a5a52; --text-muted:#9a9182;
+}
+
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--sans);background:var(--bg);color:var(--text);padding:18px}
+h1{font-family:var(--serif);font-weight:400;font-size:22px;margin:0 0 2px}
+.note{color:var(--text-dim);font-size:13px;margin:0 0 14px;line-height:1.5}
+.demo-badge{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+  color:var(--orange);border:1px solid var(--orange);border-radius:6px;padding:1px 7px;margin-left:8px;vertical-align:middle}
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+.tab{font-family:var(--mono);font-size:13px;cursor:pointer;background:var(--surface);color:var(--text-dim);
+  border:1px solid var(--border);border-radius:8px;padding:7px 14px}
+.tab.active{color:var(--text);border-color:var(--border2);background:var(--surface2)}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;font-size:14px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--border)}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text-dim);text-transform:uppercase}
+tr:last-child td{border-bottom:0}
+.dt{font-family:var(--mono);white-space:nowrap}
+.rate{font-family:var(--serif);font-size:16px} .rate.old{color:var(--text-dim)}
+.pos{font-size:12px;color:var(--text-dim)}
+.opt{font-family:var(--mono);font-size:12px;margin-right:10px;white-space:nowrap}
+.cin{width:66px;font-family:var(--mono);background:var(--surface2);color:var(--text);
+  border:1px solid var(--border2);border-radius:5px;padding:2px 5px}
+.bar{margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:14px;cursor:pointer;border-radius:8px;padding:9px 18px;border:1px solid var(--border2)}
+.btn.go{background:var(--green);color:#04140d;border-color:var(--green);font-weight:600}
+.btn.ghost{background:transparent;color:var(--text-dim)}
+.hint{color:var(--text-muted);font-size:12px}
+.pane{display:none} .pane.active{display:block}
+.toast{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:20px;z-index:50}
+.toast.show{display:flex}
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius);
+  padding:22px;max-width:520px;width:100%}
+.card h2{font-family:var(--serif);font-weight:400;margin:0 0 8px}
+.card ul{margin:8px 0 0;padding-left:18px;font-size:13px;line-height:1.6}
+.card .close{margin-top:16px}
+footer{margin-top:22px;color:var(--text-muted);font-size:11px;font-family:var(--mono);line-height:1.6}
+</style></head><body>
+<h1>Rate Approvals <span class="demo-badge">DEMO</span></h1>
+<p class="note">Client-side mock — no PMS/SiteMinder connection, nothing is written or saved.
+Submitting shows a sample confirmation and resets on reload. The same rates appear every cycle.</p>
+
+<div class="tabs">
+  <button class="tab active" data-pane="p14">14-day</button>
+  <button class="tab" data-pane="p6m">6-Month</button>
+</div>
+
+<div class="pane active" id="p14">
+  <table><thead><tr><th>Stay date</th><th>Current</th><th>Proposed</th><th>Position</th><th>Decision</th></tr></thead>
+  <tbody>
+    <tr data-i="0" data-scope="d14" data-new="4750">
+      <td class="dt">05 Aug Wed</td>
+      <td class="rate old">฿6,100</td>
+      <td class="rate new" style="color:var(--red)">฿4,750</td>
+      <td class="pos">significantly premium</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd140" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd140" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd140" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4750"></label>
+      </td>
+    </tr>
+    <tr data-i="1" data-scope="d14" data-new="6050">
+      <td class="dt">06 Aug Thu</td>
+      <td class="rate old">฿5,700</td>
+      <td class="rate new" style="color:var(--blue)">฿6,050</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd141" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd141" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd141" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="6050"></label>
+      </td>
+    </tr>
+    <tr data-i="2" data-scope="d14" data-new="8500">
+      <td class="dt">08 Aug Sat</td>
+      <td class="rate old">฿8,000</td>
+      <td class="rate new" style="color:var(--blue)">฿8,500</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd142" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd142" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd142" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="8500"></label>
+      </td>
+    </tr>
+    <tr data-i="3" data-scope="d14" data-new="8100">
+      <td class="dt">11 Aug Tue</td>
+      <td class="rate old">฿7,100</td>
+      <td class="rate new" style="color:var(--blue)">฿8,100</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd143" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd143" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd143" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="8100"></label>
+      </td>
+    </tr>
+    <tr data-i="4" data-scope="d14" data-new="9000">
+      <td class="dt">13 Aug Thu</td>
+      <td class="rate old">฿8,100</td>
+      <td class="rate new" style="color:var(--blue)">฿9,000</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd144" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd144" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd144" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="9000"></label>
+      </td>
+    </tr>
+    <tr data-i="5" data-scope="d14" data-new="5250">
+      <td class="dt">15 Aug Sat</td>
+      <td class="rate old">฿4,750</td>
+      <td class="rate new" style="color:var(--blue)">฿5,250</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd145" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd145" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd145" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="5250"></label>
+      </td>
+    </tr>
+    <tr data-i="6" data-scope="d14" data-new="6800">
+      <td class="dt">16 Aug Sun</td>
+      <td class="rate old">฿6,400</td>
+      <td class="rate new" style="color:var(--blue)">฿6,800</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd146" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd146" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd146" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="6800"></label>
+      </td>
+    </tr>
+    <tr data-i="7" data-scope="d14" data-new="4350">
+      <td class="dt">17 Aug Mon</td>
+      <td class="rate old">฿4,000</td>
+      <td class="rate new" style="color:var(--blue)">฿4,350</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd147" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd147" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd147" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4350"></label>
+      </td>
+    </tr>
+    <tr data-i="8" data-scope="d14" data-new="4450">
+      <td class="dt">18 Aug Tue</td>
+      <td class="rate old">฿3,950</td>
+      <td class="rate new" style="color:var(--blue)">฿4,450</td>
+      <td class="pos">underpriced</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd148" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd148" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd148" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4450"></label>
+      </td>
+    </tr></tbody></table>
+  <div class="bar">
+    <button class="btn go" data-scope="d14">Submit approvals</button>
+    <button class="btn ghost" data-all="ok" data-scope="d14">All OK</button>
+    <button class="btn ghost" data-all="no" data-scope="d14">All NO</button>
+    <span class="hint">Unmentioned dates auto-approve at the proposed rate.</span>
+  </div>
+</div>
+
+<div class="pane" id="p6m">
+  <table><thead><tr><th>Stay date</th><th>Planned</th><th>Proposed</th><th>Position</th><th>Decision</th></tr></thead>
+  <tbody>
+    <tr data-i="0" data-scope="d6m" data-new="4500">
+      <td class="dt">07 Aug Fri</td>
+      <td class="rate old">฿4,500</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,500</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m0" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m0" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m0" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4500"></label>
+      </td>
+    </tr>
+    <tr data-i="1" data-scope="d6m" data-new="5650">
+      <td class="dt">08 Aug Sat</td>
+      <td class="rate old">฿5,650</td>
+      <td class="rate new" style="color:var(--text-dim)">฿5,650</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m1" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m1" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m1" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="5650"></label>
+      </td>
+    </tr>
+    <tr data-i="2" data-scope="d6m" data-new="5050">
+      <td class="dt">09 Aug Sun</td>
+      <td class="rate old">฿5,050</td>
+      <td class="rate new" style="color:var(--text-dim)">฿5,050</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m2" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m2" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m2" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="5050"></label>
+      </td>
+    </tr>
+    <tr data-i="3" data-scope="d6m" data-new="4000">
+      <td class="dt">10 Aug Mon</td>
+      <td class="rate old">฿4,000</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,000</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m3" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m3" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m3" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4000"></label>
+      </td>
+    </tr>
+    <tr data-i="4" data-scope="d6m" data-new="3850">
+      <td class="dt">11 Aug Tue</td>
+      <td class="rate old">฿3,850</td>
+      <td class="rate new" style="color:var(--text-dim)">฿3,850</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m4" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m4" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m4" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="3850"></label>
+      </td>
+    </tr>
+    <tr data-i="5" data-scope="d6m" data-new="4400">
+      <td class="dt">12 Aug Wed</td>
+      <td class="rate old">฿4,400</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,400</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m5" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m5" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m5" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4400"></label>
+      </td>
+    </tr>
+    <tr data-i="6" data-scope="d6m" data-new="4000">
+      <td class="dt">13 Aug Thu</td>
+      <td class="rate old">฿4,000</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,000</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m6" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m6" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m6" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4000"></label>
+      </td>
+    </tr>
+    <tr data-i="7" data-scope="d6m" data-new="4300">
+      <td class="dt">14 Aug Fri</td>
+      <td class="rate old">฿4,300</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,300</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m7" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m7" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m7" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4300"></label>
+      </td>
+    </tr>
+    <tr data-i="8" data-scope="d6m" data-new="4750">
+      <td class="dt">15 Aug Sat</td>
+      <td class="rate old">฿4,750</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,750</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m8" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m8" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m8" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4750"></label>
+      </td>
+    </tr>
+    <tr data-i="9" data-scope="d6m" data-new="4500">
+      <td class="dt">16 Aug Sun</td>
+      <td class="rate old">฿4,500</td>
+      <td class="rate new" style="color:var(--text-dim)">฿4,500</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m9" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m9" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m9" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="4500"></label>
+      </td>
+    </tr>
+    <tr data-i="10" data-scope="d6m" data-new="3950">
+      <td class="dt">17 Aug Mon</td>
+      <td class="rate old">฿3,950</td>
+      <td class="rate new" style="color:var(--text-dim)">฿3,950</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m10" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m10" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m10" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="3950"></label>
+      </td>
+    </tr>
+    <tr data-i="11" data-scope="d6m" data-new="3850">
+      <td class="dt">18 Aug Tue</td>
+      <td class="rate old">฿3,850</td>
+      <td class="rate new" style="color:var(--text-dim)">฿3,850</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m11" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m11" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m11" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="3850"></label>
+      </td>
+    </tr>
+    <tr data-i="12" data-scope="d6m" data-new="3900">
+      <td class="dt">19 Aug Wed</td>
+      <td class="rate old">฿3,900</td>
+      <td class="rate new" style="color:var(--text-dim)">฿3,900</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m12" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m12" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m12" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="3900"></label>
+      </td>
+    </tr>
+    <tr data-i="13" data-scope="d6m" data-new="3750">
+      <td class="dt">20 Aug Thu</td>
+      <td class="rate old">฿3,750</td>
+      <td class="rate new" style="color:var(--text-dim)">฿3,750</td>
+      <td class="pos">at market</td>
+      <td class="act">
+        <label class="opt"><input type="radio" name="dd6m13" value="ok" checked> OK</label>
+        <label class="opt"><input type="radio" name="dd6m13" value="no"> NO</label>
+        <label class="opt"><input type="radio" name="dd6m13" value="counter"> ฿
+          <input type="number" class="cin" min="50" step="50" placeholder="3750"></label>
+      </td>
+    </tr></tbody></table>
+  <div class="bar">
+    <button class="btn go" data-scope="d6m">Submit approvals</button>
+    <button class="btn ghost" data-all="ok" data-scope="d6m">All OK</button>
+    <button class="btn ghost" data-all="no" data-scope="d6m">All NO</button>
+    <span class="hint">6-month curve — validity is batch-based (daily).</span>
+  </div>
+</div>
+
+<div class="toast" id="toast"><div class="card">
+  <h2>Approved ✓</h2>
+  <div id="toast-body"></div>
+  <button class="btn go close" id="toast-close">Close</button>
+</div></div>
+
+<footer>Demo build · reference 05 Aug 2026 · rate code BAR2026 · no live write path.</footer>
+
+<script>
+// Theme: read ?theme= seed + follow the shell (same-origin sets data-theme; also postMessage).
+(function(){
+  var q=new URLSearchParams(location.search).get('theme');
+  if(q==='light') document.documentElement.setAttribute('data-theme','light');
+})();
+window.addEventListener('message',function(e){
+  if(e.data&&e.data.type==='cc-theme'){
+    if(e.data.theme==='light') document.documentElement.setAttribute('data-theme','light');
+    else document.documentElement.removeAttribute('data-theme');
+  }
+});
+
+// Tabs
+document.querySelectorAll('.tab').forEach(function(t){
+  t.onclick=function(){
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.pane').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active'); document.getElementById(t.dataset.pane).classList.add('active');
+  };
+});
+
+// All OK / All NO
+document.querySelectorAll('.btn.ghost').forEach(function(b){
+  b.onclick=function(){
+    var sc=b.dataset.scope, v=b.dataset.all;
+    document.querySelectorAll('tr[data-scope="'+sc+'"]').forEach(function(tr){
+      var i=tr.dataset.i;
+      var r=tr.querySelector('input[name="d'+(sc==='d14'?'14':'6m')+i+'"][value="'+v+'"]')
+            || tr.querySelector('input[value="'+v+'"]');
+      if(r) r.checked=true;
+    });
+  };
+});
+
+// Submit -> fake confirmation, nothing saved.
+function fmt(n){return '฿'+Number(n).toLocaleString('en-US');}
+document.querySelectorAll('.btn.go[data-scope]').forEach(function(b){
+  b.onclick=function(){
+    var sc=b.dataset.scope, ok=0,no=0,ctr=0, lines=[];
+    document.querySelectorAll('tr[data-scope="'+sc+'"]').forEach(function(tr){
+      var sel=tr.querySelector('input[type=radio]:checked'); if(!sel) return;
+      var dt=tr.querySelector('.dt').textContent, base=tr.dataset.new;
+      if(sel.value==='ok'){ok++;}
+      else if(sel.value==='no'){no++; lines.push(dt+' — skipped');}
+      else{ctr++; var c=tr.querySelector('.cin').value||base; lines.push(dt+' — countered to '+fmt(c));}
+    });
+    var body=document.getElementById('toast-body');
+    var summary='<p class="note" style="margin:0 0 6px">'+ok+' approved · '+no+' skipped · '+ctr+' countered'
+      +'<br>Applied for the next cycle (demo — not saved).</p>';
+    body.innerHTML=summary+(lines.length?'<ul><li>'+lines.join('</li><li>')+'</li></ul>':'');
+    document.getElementById('toast').classList.add('show');
+  };
+});
+document.getElementById('toast-close').onclick=function(){
+  document.getElementById('toast').classList.remove('show');
+};
+</script></body></html>

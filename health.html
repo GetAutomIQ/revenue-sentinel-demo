@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="refresh" content="300">
+<title>Revenue Sentinel — System Health</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #070d14;
+    --surface:  #0d1520;
+    --border:   #1a2e48;
+    --text:     #d8e8f8;
+    --muted:    #6888a8;
+    --gold:     #d4b07a;
+    --green:    #00e5a0;
+    --amber:    #ff8c42;
+    --red:      #ff4f6a;
+    --serif:    'DM Serif Display', Georgia, serif;
+    --mono:     'DM Mono', ui-monospace, monospace;
+    --sans:     'DM Sans', system-ui, sans-serif;
+  }
+  :root[data-theme="light"] {
+    --bg:       #ede8de;
+    --surface:  #fdfcf9;
+    --border:   #e4ddcf;
+    --text:     #1a1a18;
+    --muted:    #7a7a72;
+    --gold:     #b5924a;
+    --green:    #5a7d5a;
+    --amber:    #c0883c;
+    --red:      #a85a4a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    padding: 40px 32px;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .logo-title {
+    font-family: var(--serif);
+    font-size: 26px;
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    color: var(--text);
+  }
+
+  .logo-sub {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  .header-right {
+    text-align: right;
+  }
+
+  .refresh-note {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .timestamp {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--gold);
+  }
+
+  /* ── Section labels ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* ── PMS snapshot ── */
+  .pms-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .pms-metric {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pms-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .pms-value {
+    font-family: var(--serif);
+    font-size: 24px;
+    font-weight: 400;
+    color: var(--gold);
+    letter-spacing: -0.01em;
+  }
+
+  .pms-sub {
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  /* ── Employee cards ── */
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 36px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 4px;
+    padding: 18px 20px;
+    transition: border-color 0.2s;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .emp-id {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .emp-role {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    flex: 1;
+  }
+
+  .status-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    padding: 3px 9px;
+    border-radius: 2px;
+    border: 1px solid;
+    white-space: nowrap;
+  }
+
+  .card-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+    min-height: 16px;
+  }
+
+  .card-meta {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .card-meta strong {
+    color: var(--text);
+  }
+
+  .age {
+    color: var(--muted);
+  }
+
+  .tags {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 7px;
+    background: #1e1e2e;
+    border-radius: 2px;
+    color: var(--muted);
+  }
+
+  .tag.err {
+    background: #1f0707;
+    color: var(--red);
+  }
+
+  /* ── Flags ── */
+  .flags-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-bottom: 36px;
+  }
+
+  .flag-row {
+    font-size: 13px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    line-height: 1.4;
+  }
+
+  .flag-row:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+
+  .flag-row.muted {
+    color: var(--muted);
+  }
+
+  /* ── Footer ── */
+  footer {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* light-theme fixes for chips whose backgrounds were hardcoded for dark */
+  [data-theme="light"] .tag { background: #f0ece2; }
+  [data-theme="light"] .tag.err { background: #f3e0da; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">
+    <div class="logo-title">Revenue Sentinel</div>
+    <div class="logo-sub">System Health Monitor — AutomIQ Hotel</div>
+  </div>
+  <div class="header-right">
+    <div class="timestamp">2026-08-05 20:21:01</div>
+    <div class="refresh-note">auto-refreshes every 5 minutes</div>
+  </div>
+</div>
+
+<div class="section-label">PMS Snapshot — 2026-08-05</div>
+<div class="pms-bar">
+  <div class="pms-metric">
+    <span class="pms-label">Occupancy</span>
+    <span class="pms-value">15.79%</span>
+    <span class="pms-sub">6 of 38 rooms</span>
+  </div>
+  <div class="pms-metric">
+    <span class="pms-label">ADR</span>
+    <span class="pms-value">฿6,542</span>
+    <span class="pms-sub">avg daily rate</span>
+  </div>
+  <div class="pms-metric">
+    <span class="pms-label">RevPAR</span>
+    <span class="pms-value">฿1,033</span>
+    <span class="pms-sub">revenue per avail room</span>
+  </div>
+  <div class="pms-metric">
+    <span class="pms-label">Active Flags</span>
+    <span class="pms-value">6</span>
+    <span class="pms-sub">from Employee 4</span>
+  </div>
+</div>
+
+<div class="section-label">Employee Status</div>
+<div class="cards">
+
+        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+            <div class="card-header">
+                <span class="emp-id">E1</span>
+                <span class="emp-role">PMS Scraper</span>
+                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                    ● OK
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="card-detail">Occupancy : 15.79%</div>
+                <div class="card-meta">
+                    <span>Last run: <strong>2026-08-05 19:34:29</strong></span>
+                    <span class="age">46m ago</span>
+                </div>
+                <div class="tags"></div>
+            </div>
+        </div>
+        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+            <div class="card-header">
+                <span class="emp-id">E2</span>
+                <span class="emp-role">Dashboard Builder</span>
+                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                    ● OK
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="card-detail">Dashboard rebuilt</div>
+                <div class="card-meta">
+                    <span>Last run: <strong>2026-08-05 19:36:01</strong></span>
+                    <span class="age">44m ago</span>
+                </div>
+                <div class="tags"></div>
+            </div>
+        </div>
+        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+            <div class="card-header">
+                <span class="emp-id">E3</span>
+                <span class="emp-role">Rate Intelligence</span>
+                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                    ● OK
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="card-detail">56 fetched, 4 no_availability, 0 errors</div>
+                <div class="card-meta">
+                    <span>Last run: <strong>2026-08-05 19:43:01</strong></span>
+                    <span class="age">38m ago</span>
+                </div>
+                <div class="tags"><span class="tag">records: 56</span></div>
+            </div>
+        </div>
+        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+            <div class="card-header">
+                <span class="emp-id">E4</span>
+                <span class="emp-role">Rate Comparator</span>
+                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                    ● OK
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="card-detail">30 dates loaded, 6 flags raised</div>
+                <div class="card-meta">
+                    <span>Last run: <strong>2026-08-05 19:50:02</strong></span>
+                    <span class="age">30m ago</span>
+                </div>
+                <div class="tags"><span class="tag">records: 30</span><span class="tag">flags: 6</span></div>
+            </div>
+        </div>
+        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+            <div class="card-header">
+                <span class="emp-id">E-SM</span>
+                <span class="emp-role">Session Refresh</span>
+                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                    ● OK
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="card-detail">Refreshed 20m ago, ~40m JWT remaining</div>
+                <div class="card-meta">
+                    <span>Last run: <strong>2026-08-05 20:00:53</strong></span>
+                    <span class="age">20m ago</span>
+                </div>
+                <div class="tags"></div>
+            </div>
+        </div>
+        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+            <div class="card-header">
+                <span class="emp-id">E1-RATES</span>
+                <span class="emp-role">Rate Reader</span>
+                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                    ● OK
+                </span>
+            </div>
+            <div class="card-body">
+                <div class="card-detail">Refreshed 46m ago — 15/15 set</div>
+                <div class="card-meta">
+                    <span>Last run: <strong>2026-08-05 19:34:29</strong></span>
+                    <span class="age">46m ago</span>
+                </div>
+                <div class="tags"><span class="tag">records: 15</span></div>
+            </div>
+        </div>
+</div>
+
+<div class="section-label">Active Flags</div>
+<div class="flags-panel">
+<div class="flag-row">🟢 Tonight's rate ฿6100 is 28.9% above market average — monitor conversion</div><div class="flag-row">🟡 Today's occupancy is 15.79% (6 of 38 rooms)</div><div class="flag-row">🟢 September 2026: +44 RN pickup in last 7 days (OTB: 198)</div><div class="flag-row">🟡 August 2026: OTB 234 RN vs LY 378 (-38.1% YoY)</div><div class="flag-row">🟡 September 2026: OTB 198 RN vs LY 303 (-34.7% YoY)</div><div class="flag-row">🟡 November 2026: OTB 128 RN vs LY 370 (-65.4% YoY)</div>
+</div>
+
+<footer>
+  Revenue Sentinel · AutomIQ Hotel · Chiang Mai · Generated 2026-08-05 20:21:01 · Refreshes every 5 min
+</footer>
+
+</body>
+</html>

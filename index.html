@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Revenue Sentinel — Control Center</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --bg:#070d14; --surface:#0d1520; --surface2:#111c2b;
+  --border:#1a2e48; --border2:#243d5e;
+  --blue:#2e7de9; --green:#00e5a0; --orange:#ff8c42; --purple:#9b6dff; --red:#ff4f6a;
+  --text:#d8e8f8; --text-dim:#6888a8; --text-muted:#2a4060;
+  --radius:12px;
+  --sans:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="light"]{
+  --bg:#ede8de; --surface:#fdfcf9; --surface2:#f5f2ec;
+  --border:#e4ddcf; --border2:#d8cfbd;
+  --blue:#b5924a; --green:#5a7d5a; --orange:#c0883c; --purple:#9c7f6a; --red:#a85a4a;
+  --text:#1a1a18; --text-dim:#5a5a52; --text-muted:#9a9182;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);
+  display:grid;grid-template-columns:248px 1fr;height:100vh;overflow:hidden}
+/* sidebar */
+.side{background:var(--surface);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;height:100vh;overflow-y:auto}
+.brand{padding:20px 18px 14px;border-bottom:1px solid var(--border)}
+.brand h1{font-family:var(--serif);font-size:19px;font-weight:400;letter-spacing:.2px;line-height:1.15}
+.brand .sub{font-size:11px;color:var(--text-dim);margin-top:3px;font-family:var(--mono)}
+.menu{padding:10px 10px 20px;flex:1}
+.group-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text-muted);padding:13px 10px 6px;font-family:var(--mono)}
+/* Menu buttons sized 15px (1.5× original, then -25%) — applies on PC + mobile,
+   both themes (size lives outside the theme token blocks). */
+.item{width:100%;display:flex;align-items:center;gap:10px;padding:11px 11px;
+  background:none;border:0;border-radius:9px;color:var(--text-dim);cursor:pointer;
+  font-family:var(--sans);font-size:15px;text-align:left;transition:.13s}
+.item .ic{width:14px;color:var(--text-muted);font-size:12px}
+.item .lbl{flex:1}
+.item.sub{padding-left:18px;font-size:14px}
+.item:hover{background:var(--surface2);color:var(--text)}
+.item.active{background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--text)}
+.item.active .ic{color:var(--blue)}
+.badge{font-size:11px;font-family:var(--mono);padding:2px 7px;border-radius:20px;letter-spacing:.3px}
+.badge.todo{background:color-mix(in srgb,var(--purple) 18%,transparent);color:var(--purple)}
+.badge.missing{background:color-mix(in srgb,var(--red) 16%,transparent);color:var(--red)}
+/* content */
+.main{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.bar{display:flex;align-items:center;gap:12px;padding:12px 18px;
+  border-bottom:1px solid var(--border);background:var(--surface);min-height:52px}
+.bar h2{font-family:var(--serif);font-weight:400;font-size:17px;flex:1}
+.bar .meta{font-size:11px;color:var(--text-dim);font-family:var(--mono)}
+.bar a.ext{font-size:12px;color:var(--text-dim);text-decoration:none;
+  border:1px solid var(--border2);background:none;border-radius:8px;padding:6px 11px;
+  cursor:pointer;font-family:var(--sans)}
+.bar a.ext:hover{color:var(--text);border-color:var(--blue)}
+/* single theme slider — drives the whole Control Center */
+.bar button.tgl{display:inline-flex;align-items:center;gap:8px;background:none;border:0;
+  cursor:pointer;font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--text-dim);padding:4px 2px}
+.bar button.tgl:hover{color:var(--text)}
+.tgl-track{width:34px;height:18px;border-radius:20px;background:var(--border2);
+  position:relative;transition:.2s;flex-shrink:0}
+:root[data-theme="light"] .tgl-track{background:var(--blue)}
+.tgl-knob{position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;
+  background:#fff;transition:.2s;box-shadow:0 1px 2px rgba(0,0,0,.35)}
+:root[data-theme="light"] .tgl-knob{transform:translateX(16px)}
+.tgl-lbl::after{content:'Dark'}
+:root[data-theme="light"] .tgl-lbl::after{content:'Light'}
+.pane{flex:1;position:relative;background:var(--bg)}
+iframe#frame{width:100%;height:100%;border:0;background:var(--bg);display:none}
+.placeholder{position:absolute;inset:0;display:none;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;padding:40px;gap:14px}
+.placeholder .big{font-family:var(--serif);font-size:26px}
+.placeholder .phase{font-family:var(--mono);font-size:12px;color:var(--purple);
+  background:color-mix(in srgb,var(--purple) 14%,transparent);padding:6px 14px;border-radius:20px}
+.placeholder p{color:var(--text-dim);font-size:14px;max-width:440px;line-height:1.5}
+/* mobile nav: hamburger + slide-in drawer (hidden on desktop) */
+.hamburger{display:none;background:none;border:1px solid var(--border2);color:var(--text-dim);
+  border-radius:8px;font-size:17px;line-height:1;padding:5px 10px;cursor:pointer}
+.hamburger:hover{color:var(--text);border-color:var(--blue)}
+.scrim{display:none}
+@media (max-width:820px){
+  body{grid-template-columns:1fr}
+  .hamburger{display:inline-flex;align-items:center}
+  .side{position:fixed;top:0;left:0;bottom:0;width:264px;z-index:50;
+    transform:translateX(-100%);box-shadow:2px 0 26px rgba(0,0,0,.55)}
+  body.nav-open .side{transform:translateX(0)}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40}
+  body.nav-open .scrim{display:block}
+  .bar h2{font-size:15px} .bar .meta{display:none}
+}
+</style>
+</head>
+<body>
+<nav class="side">
+  <div class="brand">
+    <h1>Revenue Sentinel</h1>
+    <div class="sub">Control Center · DEMO (mock data)</div>
+  </div>
+  <div class="menu" role="tablist">
+<button class="item" data-id="dashboard" role="tab"><span class="ic">▸</span><span class="lbl">Dashboard</span></button>
+<button class="item" data-id="inbox" role="tab"><span class="ic">▸</span><span class="lbl">Inbox</span></button>
+<button class="item" data-id="approvals" role="tab"><span class="ic">▸</span><span class="lbl">Approvals</span></button>
+<button class="item" data-id="rates" role="tab"><span class="ic">▸</span><span class="lbl">Rates</span></button>
+<button class="item" data-id="compset" role="tab"><span class="ic">▸</span><span class="lbl">Compset</span></button>
+<div class="group-label">Reports</div>
+<button class="item sub" data-id="reports_pace" role="tab"><span class="ic">·</span><span class="lbl">Pick-up &amp; Pace</span></button>
+<button class="item sub" data-id="reports_weekly" role="tab"><span class="ic">·</span><span class="lbl">Weekly</span></button>
+<button class="item sub" data-id="reports_monthly" role="tab"><span class="ic">·</span><span class="lbl">Monthly</span></button>
+<button class="item sub" data-id="reports_quarterly" role="tab"><span class="ic">·</span><span class="lbl">Quarterly</span></button>
+<button class="item" data-id="inprogress" role="tab"><span class="ic">▸</span><span class="lbl">In Progress</span></button>
+<button class="item" data-id="health" role="tab"><span class="ic">▸</span><span class="lbl">System Health</span></button>
+  </div>
+</nav>
+<div class="scrim" id="scrim"></div>
+<div class="main">
+  <div class="bar">
+    <button class="hamburger" id="ham" aria-label="Menu">&#9776;</button>
+    <h2 id="title">Dashboard</h2>
+    <span class="meta">built 2026-08-05 20:24</span>
+    <a class="ext" id="ext" href="#" target="_blank" rel="noopener">open ↗</a>
+    <button class="tgl" id="tgl" title="Toggle light / dark"><span class="tgl-lbl"></span><span class="tgl-track"><span class="tgl-knob"></span></span></button>
+  </div>
+  <div class="pane">
+    <iframe id="frame" title="section content"></iframe>
+    <div class="placeholder" id="ph">
+      <div class="phase" id="ph-phase"></div>
+      <div class="big" id="ph-title"></div>
+      <p id="ph-text"></p>
+    </div>
+  </div>
+</div>
+<script>
+const REG = {"dashboard": {"label": "Dashboard", "kind": "embed", "src": "dashboard_latest.html?v=1785933361", "phase": null}, "inbox": {"label": "Inbox", "kind": "embed", "src": "cc_inbox.html?v=1785934741", "phase": null}, "approvals": {"label": "Approvals", "kind": "embed", "src": "approvals_demo.html", "phase": null}, "rates": {"label": "Rates", "kind": "embed", "src": "cc_rates.html?v=1785936241", "phase": null}, "compset": {"label": "Compset", "kind": "embed", "src": "cc_compset.html?v=1785936241", "phase": null}, "reports_pace": {"label": "Pick-up & Pace", "kind": "embed", "src": "pace_latest.html?v=1785935822", "phase": null}, "reports_weekly": {"label": "Weekly", "kind": "embed", "src": "weekly/weekly_2026-W31.html?v=1785812047", "phase": null}, "reports_monthly": {"label": "Monthly", "kind": "embed", "src": "monthly/monthly_2026-07.html?v=1785812048", "phase": null}, "reports_quarterly": {"label": "Quarterly", "kind": "embed", "src": "quarterly/quarterly_2026-Q2.html?v=1785812049", "phase": null}, "inprogress": {"label": "In Progress", "kind": "embed", "src": "cc_inprogress.html?v=1785936241", "phase": null}, "health": {"label": "System Health", "kind": "embed", "src": "health.html?v=1785936061", "phase": null}};
+const frame = document.getElementById('frame');
+const ph = document.getElementById('ph');
+const els = {title:document.getElementById('title'), ext:document.getElementById('ext'),
+  phase:document.getElementById('ph-phase'), phTitle:document.getElementById('ph-title'),
+  phText:document.getElementById('ph-text')};
+
+function theme(){ return document.documentElement.getAttribute('data-theme') || 'dark'; }
+function applyThemeToFrame(){
+  const t = theme();
+  try{ const d=frame.contentDocument;
+    if(d&&d.documentElement) d.documentElement.setAttribute('data-theme', t);
+  }catch(e){/* cross-origin: ignore, handled by postMessage below */}
+  // Cross-origin frames (e.g. Approvals on :8081 when the shell is opened on
+  // localhost:8080) can't be reached via the DOM — push the theme by postMessage.
+  try{ if(frame.contentWindow) frame.contentWindow.postMessage({type:'cc-theme', theme:t}, '*'); }catch(e){}
+}
+frame.addEventListener('load', applyThemeToFrame);
+
+document.getElementById('tgl').addEventListener('click', ()=>{
+  const t = theme()==='dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  try{ localStorage.setItem('cc-theme', t); }catch(e){}
+  applyThemeToFrame();
+});
+(function(){ try{ const s=localStorage.getItem('cc-theme'); if(s) document.documentElement.setAttribute('data-theme', s);}catch(e){} })();
+
+function select(id){
+  const s = REG[id]; if(!s) return;
+  // Approvals is the loopback write API (:8081), proxied at /approvals only via the
+  // Tailscale host. Opened directly on localhost:8080 the relative "approvals/" 404s
+  // (static server has no such path), so target the API on this machine; via Tailscale
+  // keep the proxied relative path (same origin, so the theme still propagates there).
+  let src = s.src;
+  if(id==='approvals'){
+    // DEMO: static mock, no live API. Seed the theme so it matches the toggle.
+    src += (src.indexOf('?')<0?'?':'&') + 'theme=' + theme();
+  }
+  document.querySelectorAll('.item').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
+  els.title.textContent = s.label;
+  if(s.kind==='embed'){
+    ph.style.display='none'; frame.style.display='block';
+    if(frame.getAttribute('src')!==src) frame.setAttribute('src', src);
+    else applyThemeToFrame();
+    els.ext.style.display=''; els.ext.href=src;
+  } else {
+    frame.style.display='none'; frame.removeAttribute('src');
+    ph.style.display='flex'; els.ext.style.display='none';
+    if(s.kind==='todo'){
+      els.phase.textContent='Planned · '+s.phase; els.phase.style.display='';
+      els.phTitle.textContent=s.label;
+      els.phText.textContent='This section is part of the Control Center roadmap and has not been built yet. It arrives in phase '+s.phase+'.';
+    } else {
+      els.phase.style.display='none'; els.phTitle.textContent=s.label+' — no data';
+      els.phText.textContent='No generated report was found for this section yet. It will appear once its generator has run.';
+    }
+  }
+  if(location.hash.slice(1)!==id) history.replaceState(null,'','#'+id);
+}
+function closeNav(){ document.body.classList.remove('nav-open'); }
+document.getElementById('ham').addEventListener('click',()=>document.body.classList.toggle('nav-open'));
+document.getElementById('scrim').addEventListener('click',closeNav);
+document.querySelectorAll('.item').forEach(b=>b.addEventListener('click',()=>{select(b.dataset.id);closeNav();}));
+window.addEventListener('hashchange',()=>{const id=location.hash.slice(1); if(REG[id]) select(id);});
+const start = REG[location.hash.slice(1)] ? location.hash.slice(1) : 'dashboard';
+select(start);
+</script>
+</body>
+</html>
