@@ -61,6 +61,9 @@ body{font-family:var(--sans);background:var(--bg);color:var(--text);
   border:1px solid var(--border2);background:none;border-radius:8px;padding:6px 11px;
   cursor:pointer;font-family:var(--sans)}
 .bar a.ext:hover{color:var(--text);border-color:var(--blue)}
+.bar select.hist{font-family:var(--mono);font-size:12px;color:var(--text);background:var(--surface2);
+  border:1px solid var(--border2);border-radius:8px;padding:6px 9px;cursor:pointer;max-width:190px}
+.bar select.hist:hover{border-color:var(--blue)}
 /* single theme slider — drives the whole Control Center */
 .bar button.tgl{display:inline-flex;align-items:center;gap:8px;background:none;border:0;
   cursor:pointer;font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
@@ -125,7 +128,8 @@ iframe#frame{width:100%;height:100%;border:0;background:var(--bg);display:none}
   <div class="bar">
     <button class="hamburger" id="ham" aria-label="Menu">&#9776;</button>
     <h2 id="title">Dashboard</h2>
-    <span class="meta">built 2026-08-06 11:09</span>
+    <select id="hist" class="hist" aria-label="Report history" style="display:none"></select>
+    <span class="meta">built 2026-08-13 20:39</span>
     <a class="ext" id="ext" href="#" target="_blank" rel="noopener">open ↗</a>
     <button class="tgl" id="tgl" title="Toggle light / dark"><span class="tgl-lbl"></span><span class="tgl-track"><span class="tgl-knob"></span></span></button>
   </div>
@@ -139,10 +143,11 @@ iframe#frame{width:100%;height:100%;border:0;background:var(--bg);display:none}
   </div>
 </div>
 <script>
-const REG = {"dashboard": {"label": "Dashboard", "kind": "embed", "src": "dashboard_latest.html?v=1785987361", "phase": null}, "inbox": {"label": "Inbox", "kind": "embed", "src": "cc_inbox.html?v=1785988741", "phase": null}, "approvals": {"label": "Approvals", "kind": "embed", "src": "approvals_demo.html", "phase": null}, "rates": {"label": "Rates", "kind": "embed", "src": "cc_rates.html?v=1785989341", "phase": null}, "compset": {"label": "Compset", "kind": "embed", "src": "cc_compset.html?v=1785989342", "phase": null}, "reports_pace": {"label": "Pick-up & Pace", "kind": "embed", "src": "pace_latest.html?v=1785986221", "phase": null}, "reports_weekly": {"label": "Weekly", "kind": "embed", "src": "weekly/weekly_2026-W31.html?v=1785812047", "phase": null}, "reports_monthly": {"label": "Monthly", "kind": "embed", "src": "monthly/monthly_2026-07.html?v=1785812048", "phase": null}, "reports_quarterly": {"label": "Quarterly", "kind": "embed", "src": "quarterly/quarterly_2026-Q2.html?v=1785812049", "phase": null}, "inprogress": {"label": "In Progress", "kind": "embed", "src": "cc_inprogress.html?v=1785989342", "phase": null}, "health": {"label": "System Health", "kind": "embed", "src": "health.html?v=1785987601", "phase": null}};
+const REG = {"dashboard": {"label": "Dashboard", "kind": "embed", "src": "dashboard_latest.html?v=1786628161", "phase": null}, "inbox": {"label": "Inbox", "kind": "embed", "src": "cc_inbox.html?v=1786625942", "phase": null}, "approvals": {"label": "Approvals", "kind": "embed", "src": "approvals_demo.html", "phase": null}, "rates": {"label": "Rates", "kind": "embed", "src": "cc_rates.html?v=1786628342", "phase": null}, "compset": {"label": "Compset", "kind": "embed", "src": "cc_compset.html?v=1786628342", "phase": null}, "reports_pace": {"label": "Pick-up & Pace", "kind": "embed", "src": "pace_latest.html?v=1786627021", "phase": null}, "reports_weekly": {"label": "Weekly", "kind": "embed", "src": "weekly/weekly_2026-W31.html?v=1785812047", "phase": null, "history": [{"label": "Week 31 \u00b7 2026", "src": "weekly/weekly_2026-W31.html?v=1785812047"}, {"label": "Week 30 \u00b7 2026", "src": "weekly/weekly_2026-W30.html?v=1785575481"}, {"label": "Week 28 \u00b7 2026", "src": "weekly/weekly_2026-W28.html?v=1784610551"}]}, "reports_monthly": {"label": "Monthly", "kind": "embed", "src": "monthly/monthly_2026-07.html?v=1785812048", "phase": null, "history": [{"label": "Jul 2026", "src": "monthly/monthly_2026-07.html?v=1785812048"}, {"label": "Jun 2026", "src": "monthly/monthly_2026-06.html?v=1784733613"}]}, "reports_quarterly": {"label": "Quarterly", "kind": "embed", "src": "quarterly/quarterly_2026-Q2.html?v=1785812049", "phase": null, "history": [{"label": "Q2 2026", "src": "quarterly/quarterly_2026-Q2.html?v=1785812049"}]}, "inprogress": {"label": "In Progress", "kind": "embed", "src": "cc_inprogress.html?v=1786628342", "phase": null}, "health": {"label": "System Health", "kind": "embed", "src": "health.html?v=1786628281", "phase": null}};
 const frame = document.getElementById('frame');
 const ph = document.getElementById('ph');
 const els = {title:document.getElementById('title'), ext:document.getElementById('ext'),
+  hist:document.getElementById('hist'),
   phase:document.getElementById('ph-phase'), phTitle:document.getElementById('ph-title'),
   phText:document.getElementById('ph-text')};
 
@@ -179,11 +184,17 @@ function select(id){
   }
   document.querySelectorAll('.item').forEach(b=>b.classList.toggle('active', b.dataset.id===id));
   els.title.textContent = s.label;
+  els.hist.style.display='none';
   if(s.kind==='embed'){
     ph.style.display='none'; frame.style.display='block';
     if(frame.getAttribute('src')!==src) frame.setAttribute('src', src);
     else applyThemeToFrame();
     els.ext.style.display=''; els.ext.href=src;
+    if(s.history && s.history.length){
+      els.hist.innerHTML = s.history.map(function(h){return '<option value="'+h.src+'">'+h.label+'</option>';}).join('');
+      els.hist.value = src;
+      els.hist.style.display='';
+    }
   } else {
     frame.style.display='none'; frame.removeAttribute('src');
     ph.style.display='flex'; els.ext.style.display='none';
@@ -202,6 +213,7 @@ function closeNav(){ document.body.classList.remove('nav-open'); }
 document.getElementById('ham').addEventListener('click',()=>document.body.classList.toggle('nav-open'));
 document.getElementById('scrim').addEventListener('click',closeNav);
 document.querySelectorAll('.item').forEach(b=>b.addEventListener('click',()=>{select(b.dataset.id);closeNav();}));
+els.hist.addEventListener('change',()=>{ frame.setAttribute('src', els.hist.value); els.ext.href=els.hist.value; });
 window.addEventListener('hashchange',()=>{const id=location.hash.slice(1); if(REG[id]) select(id);});
 const start = REG[location.hash.slice(1)] ? location.hash.slice(1) : 'dashboard';
 select(start);

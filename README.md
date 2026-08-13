@@ -6,7 +6,7 @@ Static, self-contained snapshot of the Control Center UI for demonstration.
 - **Approvals is a mock** — OK/NO/counter show a sample confirmation and save nothing.
 - Numbers are a frozen sandbox snapshot; they do not update.
 
-Built by `cc_demo_build.py` on 2026-08-06 11:23. Entry point: `index.html`.
+Built by `cc_demo_build.py` on 2026-08-13 20:46. Entry point: `index.html`.
 Regenerate anytime with `python3 cc_demo_build.py` (rewrites this `site/` folder only).
 
 ## Publish on GitHub Pages
