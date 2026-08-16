@@ -2,11 +2,11 @@
 
 Static, self-contained snapshot of the Control Center UI for demonstration.
 
-- **Read-only.** No PMS (HotelTime) or channel-manager (SiteMinder) connection.
+- **Read-only.** No PMS or Channel Manager connection.
 - **Approvals is a mock** — OK/NO/counter show a sample confirmation and save nothing.
 - Numbers are a frozen sandbox snapshot; they do not update.
 
-Built by `cc_demo_build.py` on 2026-08-16 19:35. Entry point: `index.html`.
+Built by `cc_demo_build.py` on 2026-08-16 19:44. Entry point: `index.html`.
 Regenerate anytime with `python3 cc_demo_build.py` (rewrites this `site/` folder only).
 
 ## Publish on GitHub Pages
