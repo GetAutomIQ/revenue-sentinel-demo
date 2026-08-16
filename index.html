@@ -11,7 +11,11 @@
   --bg:#070d14; --surface:#0d1520; --surface2:#111c2b;
   --border:#1a2e48; --border2:#243d5e;
   --blue:#2e7de9; --green:#00e5a0; --orange:#ff8c42; --purple:#9b6dff; --red:#ff4f6a;
-  --text:#d8e8f8; --text-dim:#6888a8; --text-muted:#2a4060;
+  --text:#d8e8f8; --text-dim:#6888a8; --text-muted:#6888a8;
+  --series1:#2e7de9; --series2:#ff8c42; --series3:#9b6dff; --series4:#00e5a0;
+  --plan-done:#00e5a0; --plan-now:#2e7de9; --plan-next:#9b6dff;
+  --pos-under2:#ff4f6a; --pos-under1:#ff8c42; --pos-at:#00e5a0; --pos-prem1:#2e7de9; --pos-prem2:#9b6dff;
+  --card-tint:13%;
   --radius:12px;
   --sans:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
   --serif:'DM Serif Display',Georgia,serif;
@@ -20,8 +24,12 @@
 :root[data-theme="light"]{
   --bg:#ede8de; --surface:#fdfcf9; --surface2:#f5f2ec;
   --border:#e4ddcf; --border2:#d8cfbd;
-  --blue:#b5924a; --green:#5a7d5a; --orange:#c0883c; --purple:#9c7f6a; --red:#a85a4a;
-  --text:#1a1a18; --text-dim:#5a5a52; --text-muted:#9a9182;
+  --blue:#7e6533; --green:#517051; --orange:#945b1a; --purple:#7d6453; --red:#9e5445;
+  --text:#1a1a18; --text-dim:#5a5a52; --text-muted:#70685b;
+  --series1:#00897c; --series2:#c1502e; --series3:#b08500; --series4:#7d3f9c;
+  --plan-done:#00897c; --plan-now:#b08500; --plan-next:#7d3f9c;
+  --pos-under2:#005a51; --pos-under1:#1f6b60; --pos-at:#5a584f; --pos-prem1:#a8451f; --pos-prem2:#7d2c10;
+  --card-tint:16%;
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
@@ -110,6 +118,7 @@ iframe#frame{width:100%;height:100%;border:0;background:var(--bg);display:none}
   </div>
   <div class="menu" role="tablist">
 <button class="item" data-id="dashboard" role="tab"><span class="ic">▸</span><span class="lbl">Dashboard</span></button>
+<button class="item" data-id="goals" role="tab"><span class="ic">▸</span><span class="lbl">Annual Plan</span></button>
 <button class="item" data-id="inbox" role="tab"><span class="ic">▸</span><span class="lbl">Inbox</span></button>
 <button class="item" data-id="approvals" role="tab"><span class="ic">▸</span><span class="lbl">Approvals</span></button>
 <button class="item" data-id="rates" role="tab"><span class="ic">▸</span><span class="lbl">Rates</span></button>
@@ -129,7 +138,7 @@ iframe#frame{width:100%;height:100%;border:0;background:var(--bg);display:none}
     <button class="hamburger" id="ham" aria-label="Menu">&#9776;</button>
     <h2 id="title">Dashboard</h2>
     <select id="hist" class="hist" aria-label="Report history" style="display:none"></select>
-    <span class="meta">built 2026-08-13 20:39</span>
+    <span class="meta">built 2026-08-16 19:24</span>
     <a class="ext" id="ext" href="#" target="_blank" rel="noopener">open ↗</a>
     <button class="tgl" id="tgl" title="Toggle light / dark"><span class="tgl-lbl"></span><span class="tgl-track"><span class="tgl-knob"></span></span></button>
   </div>
@@ -143,7 +152,7 @@ iframe#frame{width:100%;height:100%;border:0;background:var(--bg);display:none}
   </div>
 </div>
 <script>
-const REG = {"dashboard": {"label": "Dashboard", "kind": "embed", "src": "dashboard_latest.html?v=1786628161", "phase": null}, "inbox": {"label": "Inbox", "kind": "embed", "src": "cc_inbox.html?v=1786625942", "phase": null}, "approvals": {"label": "Approvals", "kind": "embed", "src": "approvals_demo.html", "phase": null}, "rates": {"label": "Rates", "kind": "embed", "src": "cc_rates.html?v=1786628342", "phase": null}, "compset": {"label": "Compset", "kind": "embed", "src": "cc_compset.html?v=1786628342", "phase": null}, "reports_pace": {"label": "Pick-up & Pace", "kind": "embed", "src": "pace_latest.html?v=1786627021", "phase": null}, "reports_weekly": {"label": "Weekly", "kind": "embed", "src": "weekly/weekly_2026-W31.html?v=1785812047", "phase": null, "history": [{"label": "Week 31 \u00b7 2026", "src": "weekly/weekly_2026-W31.html?v=1785812047"}, {"label": "Week 30 \u00b7 2026", "src": "weekly/weekly_2026-W30.html?v=1785575481"}, {"label": "Week 28 \u00b7 2026", "src": "weekly/weekly_2026-W28.html?v=1784610551"}]}, "reports_monthly": {"label": "Monthly", "kind": "embed", "src": "monthly/monthly_2026-07.html?v=1785812048", "phase": null, "history": [{"label": "Jul 2026", "src": "monthly/monthly_2026-07.html?v=1785812048"}, {"label": "Jun 2026", "src": "monthly/monthly_2026-06.html?v=1784733613"}]}, "reports_quarterly": {"label": "Quarterly", "kind": "embed", "src": "quarterly/quarterly_2026-Q2.html?v=1785812049", "phase": null, "history": [{"label": "Q2 2026", "src": "quarterly/quarterly_2026-Q2.html?v=1785812049"}]}, "inprogress": {"label": "In Progress", "kind": "embed", "src": "cc_inprogress.html?v=1786628342", "phase": null}, "health": {"label": "System Health", "kind": "embed", "src": "health.html?v=1786628281", "phase": null}};
+const REG = {"dashboard": {"label": "Dashboard", "kind": "embed", "src": "dashboard_latest.html?v=1786880162", "phase": null}, "goals": {"label": "Annual Plan", "kind": "embed", "src": "cc_goals.html?v=1786882981", "phase": null}, "inbox": {"label": "Inbox", "kind": "embed", "src": "cc_inbox.html?v=1786881541", "phase": null}, "approvals": {"label": "Approvals", "kind": "embed", "src": "approvals_demo.html", "phase": null}, "rates": {"label": "Rates", "kind": "embed", "src": "cc_rates.html?v=1786883041", "phase": null}, "compset": {"label": "Compset", "kind": "embed", "src": "cc_compset.html?v=1786883042", "phase": null}, "reports_pace": {"label": "Pick-up & Pace", "kind": "embed", "src": "pace_latest.html?v=1786882621", "phase": null}, "reports_weekly": {"label": "Weekly", "kind": "embed", "src": "weekly/weekly_2026-W31.html?v=1786699421", "phase": null, "history": [{"label": "Week 31 \u00b7 2026", "src": "weekly/weekly_2026-W31.html?v=1786699421"}, {"label": "Week 30 \u00b7 2026", "src": "weekly/weekly_2026-W30.html?v=1786699422"}, {"label": "Week 28 \u00b7 2026", "src": "weekly/weekly_2026-W28.html?v=1784610551"}]}, "reports_monthly": {"label": "Monthly", "kind": "embed", "src": "monthly/monthly_2026-07.html?v=1786699422", "phase": null, "history": [{"label": "Jul 2026", "src": "monthly/monthly_2026-07.html?v=1786699422"}, {"label": "Jun 2026", "src": "monthly/monthly_2026-06.html?v=1784733613"}]}, "reports_quarterly": {"label": "Quarterly", "kind": "embed", "src": "quarterly/quarterly_2026-Q2.html?v=1786699421", "phase": null, "history": [{"label": "Q2 2026", "src": "quarterly/quarterly_2026-Q2.html?v=1786699421"}]}, "inprogress": {"label": "In Progress", "kind": "embed", "src": "cc_inprogress.html?v=1786883042", "phase": null}, "health": {"label": "System Health", "kind": "embed", "src": "health.html?v=1786882862", "phase": null}};
 const frame = document.getElementById('frame');
 const ph = document.getElementById('ph');
 const els = {title:document.getElementById('title'), ext:document.getElementById('ext'),
@@ -157,8 +166,6 @@ function applyThemeToFrame(){
   try{ const d=frame.contentDocument;
     if(d&&d.documentElement) d.documentElement.setAttribute('data-theme', t);
   }catch(e){/* cross-origin: ignore, handled by postMessage below */}
-  // Cross-origin frames (e.g. Approvals on :8081 when the shell is opened on
-  // localhost:8080) can't be reached via the DOM — push the theme by postMessage.
   try{ if(frame.contentWindow) frame.contentWindow.postMessage({type:'cc-theme', theme:t}, '*'); }catch(e){}
 }
 frame.addEventListener('load', applyThemeToFrame);
@@ -173,8 +180,6 @@ document.getElementById('tgl').addEventListener('click', ()=>{
 
 function select(id){
   const s = REG[id]; if(!s) return;
-  // Approvals is the loopback write API (:8081), proxied at /approvals only via the
-  // Tailscale host. Opened directly on localhost:8080 the relative "approvals/" 404s
   // (static server has no such path), so target the API on this machine; via Tailscale
   // keep the proxied relative path (same origin, so the theme still propagates there).
   let src = s.src;
@@ -218,5 +223,6 @@ window.addEventListener('hashchange',()=>{const id=location.hash.slice(1); if(RE
 const start = REG[location.hash.slice(1)] ? location.hash.slice(1) : 'dashboard';
 select(start);
 </script>
+<script src="demo_dateshift.js" defer></script>
 </body>
 </html>

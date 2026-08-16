@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head><meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Revenue Sentinel — Annual Plan</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#070d14; --surface:#0d1520; --surface2:#111c2b;
+  --border:#1a2e48; --border2:#243d5e;
+  --blue:#2e7de9; --green:#00e5a0; --orange:#ff8c42; --purple:#9b6dff; --red:#ff4f6a;
+  --text:#d8e8f8; --text-dim:#6888a8; --text-muted:#6888a8;
+  --series1:#2e7de9; --series2:#ff8c42; --series3:#9b6dff; --series4:#00e5a0;
+  --plan-done:#00e5a0; --plan-now:#2e7de9; --plan-next:#9b6dff;
+  --pos-under2:#ff4f6a; --pos-under1:#ff8c42; --pos-at:#00e5a0; --pos-prem1:#2e7de9; --pos-prem2:#9b6dff;
+  --card-tint:13%;
+  --radius:12px;
+  --sans:'DM Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  --serif:'DM Serif Display',Georgia,serif;
+  --mono:'DM Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+:root[data-theme="light"]{
+  --bg:#ede8de; --surface:#fdfcf9; --surface2:#f5f2ec;
+  --border:#e4ddcf; --border2:#d8cfbd;
+  --blue:#7e6533; --green:#517051; --orange:#945b1a; --purple:#7d6453; --red:#9e5445;
+  --text:#1a1a18; --text-dim:#5a5a52; --text-muted:#70685b;
+  --series1:#00897c; --series2:#c1502e; --series3:#b08500; --series4:#7d3f9c;
+  --plan-done:#00897c; --plan-now:#b08500; --plan-next:#7d3f9c;
+  --pos-under2:#005a51; --pos-under1:#1f6b60; --pos-at:#5a584f; --pos-prem1:#a8451f; --pos-prem2:#7d2c10;
+  --card-tint:16%;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);padding:20px 22px 60px;line-height:1.45}
+h1{font-family:var(--serif);font-weight:400;font-size:22px;margin-bottom:4px}
+h2{font-family:var(--serif);font-weight:400;font-size:16px;margin:0 0 3px}
+.note{font-size:11.5px;color:var(--text-muted);font-family:var(--mono);margin-bottom:18px;max-width:940px}
+@media(max-width:560px){.note{font-size:13px;line-height:1.65}}
+.alert{font-size:12.5px;color:var(--orange);font-family:var(--mono);padding:10px 12px;
+  border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);margin-bottom:16px}
+code{font-family:var(--mono);font-size:.94em;color:var(--text-dim)}
+section{margin-bottom:26px}
+.sechead{margin-bottom:11px}
+.sechead p{font-size:11.5px;color:var(--text-muted);font-family:var(--mono);max-width:940px}
+
+/* hero */
+.hero{display:flex;gap:26px;align-items:center;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px 24px}
+.gauge{width:220px;height:220px;flex:none}
+.arc{animation:grow .9s cubic-bezier(.22,.68,.32,1) both}
+@keyframes grow{from{stroke-dasharray:0 var(--dash)}to{stroke-dasharray:var(--len) var(--dash)}}
+@media (prefers-reduced-motion:reduce){.arc{animation:none}}
+.g-big{font-family:var(--serif);font-size:46px;fill:var(--text);text-anchor:middle}
+.g-pct{font-size:24px;fill:var(--text-dim)}
+.g-sub{font-family:var(--mono);font-size:10px;fill:var(--text-muted);text-anchor:middle;
+  text-transform:uppercase;letter-spacing:.8px}
+.hbody{flex:1;min-width:280px}
+.htarget{font-family:var(--mono);font-size:11px;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.8px}
+.hval{font-family:var(--serif);font-size:34px;line-height:1.15;margin:2px 0 2px}
+.hsub{font-size:13px;color:var(--text-dim);margin-bottom:14px}
+.legend{display:flex;flex-direction:column;gap:7px}
+.lrow{display:flex;align-items:center;gap:9px;font-size:12.5px}
+.dot{width:10px;height:10px;border-radius:3px;flex:none}
+.lname{color:var(--text-dim);flex:1}
+.lval{font-family:var(--mono);font-size:12.5px}
+.lpct{font-family:var(--mono);font-size:11px;color:var(--text-muted);width:46px;text-align:right}
+
+/* pace */
+.pace{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:14px 18px;font-size:13px;color:var(--text-dim)}
+.good{color:var(--green)} .short{color:var(--orange)} .flat{color:var(--text-dim)}
+
+/* months */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+.mrow th,.mrow td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:middle}
+.mname{text-align:left;font-weight:500;width:78px;white-space:nowrap}
+.mstate{display:block;font-family:var(--mono);font-size:9.5px;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:.5px;font-weight:400}
+.mbar{width:42%;min-width:120px}
+.track{position:relative;height:15px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.fill{height:100%;border-radius:4px;transition:width .5s ease}
+.tgtline{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text);opacity:.55}
+.num{text-align:right;font-family:var(--mono);white-space:nowrap}
+.dim{color:var(--text-muted)}
+.verdict{width:120px}
+.occ .vs{display:block;font-size:10px;color:var(--text-muted)}
+thead th{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text-muted);font-weight:400;padding:0 8px 7px;text-align:right;border-bottom:1px solid var(--border2)}
+thead th:first-child,thead th:nth-child(2){text-align:left}
+
+/* quarters + scorecard */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px}
+.qcard,.scard{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:13px 15px}
+.qh{font-family:var(--mono);font-size:11px;color:var(--text-dim);display:flex;justify-content:space-between}
+.qh span{color:var(--text-muted)}
+.qpct{font-family:var(--serif);font-size:27px;margin:3px 0 1px}
+.qsub{font-size:11.5px;color:var(--text-muted);font-family:var(--mono)}
+.qgap{font-size:11.5px;font-family:var(--mono);margin-top:5px}
+.qcard.realized{border-left:3px solid var(--plan-done)}
+.qcard.current{border-left:3px solid var(--plan-now)}
+.qcard.future{border-left:3px solid var(--plan-next)}
+.sv{font-family:var(--serif);font-size:29px;line-height:1.1}
+.sl{font-size:12.5px;color:var(--text-dim);margin-top:1px}
+.sn{font-family:var(--mono);font-size:10.5px;color:var(--text-muted);margin-top:5px}
+
+/* The month table is the one element that cannot shrink to a phone. Give it its own
+   scroll container (§4 house pattern) rather than letting it push the page sideways —
+   and never rely on overflow:hidden, which would clip it instead of scrolling it. */
+.tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+@media (max-width:640px){
+  body{padding:16px 14px 50px}
+  .hero{gap:16px;padding:16px}
+  .gauge{width:170px;height:170px;margin:0 auto}
+  .hval{font-size:27px}
+  .mbar{display:none}
+  .occ{display:none}          /* least critical column — drop it before scrolling */
+  .verdict{width:auto}
+  table{font-size:12px}
+  .mname{width:auto}
+}
+</style></head><body>
+
+<h1>Annual Plan — 2026</h1>
+<div class="note">AutomIQ Hotel · targets from your annual budget · actuals from the PMS monthly
+  statistics. Revenue for a month that has not finished is <strong>booked, not earned</strong>: this page
+  keeps realized, in-progress and on-the-books revenue separate everywhere, and "secured" always means
+  the three added together.</div>
+
+
+<section>
+  <div class="hero">
+    <svg viewBox="0 0 220 220" class="gauge" role="img"
+   aria-label="94.4 percent of the annual revenue target secured">
+  <circle cx="110" cy="110" r="86" fill="none" stroke="var(--surface2)" stroke-width="17"/>
+  <g transform="rotate(-90 110 110)">
+    <circle class="arc" cx="110" cy="110" r="86" fill="none" stroke="var(--plan-done)" stroke-width="17" stroke-linecap="butt" stroke-dasharray="302.72 540.35" stroke-dashoffset="0.00" style="--len:302.72;--dash:540.35;animation-delay:0s"/>
+    <circle class="arc" cx="110" cy="110" r="86" fill="none" stroke="var(--plan-now)" stroke-width="17" stroke-linecap="butt" stroke-dasharray="65.46 540.35" stroke-dashoffset="-306.72" style="--len:65.46;--dash:540.35;animation-delay:0.25s"/>
+    <circle class="arc" cx="110" cy="110" r="86" fill="none" stroke="var(--plan-next)" stroke-width="17" stroke-linecap="butt" stroke-dasharray="129.81 540.35" stroke-dashoffset="-376.18" style="--len:129.81;--dash:540.35;animation-delay:0.5s"/>
+  </g>
+  <text x="110" y="103" class="g-big">94<tspan class="g-pct">%</tspan></text>
+  <text x="110" y="126" class="g-sub">of target secured</text>
+</svg>
+    <div class="hbody">
+      <div class="htarget">Annual revenue target</div>
+      <div class="hval">฿15,776,000</div>
+      <div class="hsub">฿886,259 still to sell to reach the plan</div>
+      <div class="legend">
+        <div class="lrow"><span class="dot" style="background:var(--plan-done)"></span>
+          <span class="lname">Realized — earned, months complete</span>
+          <span class="lval">฿8.95M</span>
+          <span class="lpct">57%</span></div>
+        <div class="lrow"><span class="dot" style="background:var(--plan-now)"></span>
+          <span class="lname">In progress — this month</span>
+          <span class="lval">฿2.03M</span>
+          <span class="lpct">13%</span></div>
+        <div class="lrow"><span class="dot" style="background:var(--plan-next)"></span>
+          <span class="lname">On the books — future months</span>
+          <span class="lval">฿3.91M</span>
+          <span class="lpct">25%</span></div>
+        <div class="lrow"><span class="dot" style="background:var(--surface2)"></span>
+          <span class="lname">Still to sell</span>
+          <span class="lval">฿886k</span>
+          <span class="lpct">6%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="sechead"><h2>Are we on plan?</h2>
+    <p>Complete months only — the like-for-like read. Part-months and forward bookings are excluded
+      here on purpose; including them would flatter the number.</p></div>
+  <div class="pace">฿8,954,920 earned against ฿9,170,000 targeted over the 7 complete months — <strong class="short">2.3% behind plan</strong>.</div>
+</section>
+
+<section>
+  <div class="sechead"><h2>By quarter</h2></div>
+  <div class="grid"><div class="qcard realized">
+      <div class="qh">Q1<span>JFM</span></div>
+      <div class="qpct">62%</div>
+      <div class="qsub">฿2.78M of ฿4.49M</div>
+      <div class="qgap short">missed by ฿1.71M</div>
+    </div>
+<div class="qcard realized">
+      <div class="qh">Q2<span>AMJ</span></div>
+      <div class="qpct">127%</div>
+      <div class="qsub">฿3.78M of ฿2.98M</div>
+      <div class="qgap good">surplus ฿801k</div>
+    </div>
+<div class="qcard current">
+      <div class="qh">Q3<span>JAS</span></div>
+      <div class="qpct">142%</div>
+      <div class="qsub">฿5.18M of ฿3.66M</div>
+      <div class="qgap good">ahead by ฿1.52M</div>
+    </div>
+<div class="qcard future">
+      <div class="qh">Q4<span>OND</span></div>
+      <div class="qpct">68%</div>
+      <div class="qsub">฿3.14M of ฿4.64M</div>
+      <div class="qgap short">฿1.50M to sell</div>
+    </div></div>
+</section>
+
+<section>
+  <div class="sechead"><h2>By month</h2>
+    <p>Bar = revenue booked or earned. The vertical marker is that month's target.</p></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Month</th><th class="mbar"></th><th>Revenue</th><th>Target</th><th>Position</th>
+      <th class="occ">Occ vs target</th></tr></thead>
+    <tbody><tr class="mrow realized">
+  <th scope="row" class="mname">Jan<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:51.95%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:29.51%" title="target ฿833,000"></div>
+    </div>
+  </td>
+  <td class="num">฿1.47M</td>
+  <td class="num dim">฿833k</td>
+  <td class="num verdict good">target met · +76.1%</td>
+  <td class="num dim occ">24%<span class="vs">vs 42%</span></td>
+</tr>
+<tr class="mrow realized">
+  <th scope="row" class="mname">Feb<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:30.71%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:46.76%" title="target ฿1,320,000"></div>
+    </div>
+  </td>
+  <td class="num">฿867k</td>
+  <td class="num dim">฿1.32M</td>
+  <td class="num verdict short">missed by ฿453k</td>
+  <td class="num dim occ">34%<span class="vs">vs 39%</span></td>
+</tr>
+<tr class="mrow realized">
+  <th scope="row" class="mname">Mar<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:15.84%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:82.78%" title="target ฿2,337,000"></div>
+    </div>
+  </td>
+  <td class="num">฿447k</td>
+  <td class="num dim">฿2.34M</td>
+  <td class="num verdict short">missed by ฿1.89M</td>
+  <td class="num dim occ">14%<span class="vs">vs 33%</span></td>
+</tr>
+<tr class="mrow realized">
+  <th scope="row" class="mname">Apr<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:49.23%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:39.53%" title="target ฿1,116,000"></div>
+    </div>
+  </td>
+  <td class="num">฿1.39M</td>
+  <td class="num dim">฿1.12M</td>
+  <td class="num verdict good">target met · +24.5%</td>
+  <td class="num dim occ">21%<span class="vs">vs 32%</span></td>
+</tr>
+<tr class="mrow realized">
+  <th scope="row" class="mname">May<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:44.43%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:24.16%" title="target ฿682,000"></div>
+    </div>
+  </td>
+  <td class="num">฿1.25M</td>
+  <td class="num dim">฿682k</td>
+  <td class="num verdict good">target met · +83.9%</td>
+  <td class="num dim occ">28%<span class="vs">vs 25%</span></td>
+</tr>
+<tr class="mrow realized">
+  <th scope="row" class="mname">Jun<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:40.37%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:41.94%" title="target ฿1,184,000"></div>
+    </div>
+  </td>
+  <td class="num">฿1.14M</td>
+  <td class="num dim">฿1.18M</td>
+  <td class="num verdict short">missed by ฿44k</td>
+  <td class="num dim occ">27%<span class="vs">vs 42%</span></td>
+</tr>
+<tr class="mrow realized">
+  <th scope="row" class="mname">Jul<span class="mstate">realized</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:84.69%;background:var(--plan-done)"></div>
+      <div class="tgtline" style="left:60.15%" title="target ฿1,698,000"></div>
+    </div>
+  </td>
+  <td class="num">฿2.39M</td>
+  <td class="num dim">฿1.70M</td>
+  <td class="num verdict good">target met · +40.8%</td>
+  <td class="num dim occ">23%<span class="vs">vs 30%</span></td>
+</tr>
+<tr class="mrow current">
+  <th scope="row" class="mname">Aug<span class="mstate">in progress</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:71.84%;background:var(--plan-now)"></div>
+      <div class="tgtline" style="left:43.54%" title="target ฿1,229,000"></div>
+    </div>
+  </td>
+  <td class="num">฿2.03M</td>
+  <td class="num dim">฿1.23M</td>
+  <td class="num verdict good">ahead · +65.0%</td>
+  <td class="num dim occ">22%<span class="vs">vs 37%</span></td>
+</tr>
+<tr class="mrow future">
+  <th scope="row" class="mname">Sep<span class="mstate">on the books</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:27.11%;background:var(--plan-next)"></div>
+      <div class="tgtline" style="left:25.97%" title="target ฿733,000"></div>
+    </div>
+  </td>
+  <td class="num">฿765k</td>
+  <td class="num dim">฿733k</td>
+  <td class="num verdict good">ahead · +4.4%</td>
+  <td class="num dim occ">17%<span class="vs">vs 31%</span></td>
+</tr>
+<tr class="mrow future">
+  <th scope="row" class="mname">Oct<span class="mstate">on the books</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:34.57%;background:var(--plan-next)"></div>
+      <div class="tgtline" style="left:19.48%" title="target ฿550,000"></div>
+    </div>
+  </td>
+  <td class="num">฿976k</td>
+  <td class="num dim">฿550k</td>
+  <td class="num verdict good">ahead · +77.4%</td>
+  <td class="num dim occ">22%<span class="vs">vs 23%</span></td>
+</tr>
+<tr class="mrow future">
+  <th scope="row" class="mname">Nov<span class="mstate">on the books</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:65.96%;background:var(--plan-next)"></div>
+      <div class="tgtline" style="left:45.02%" title="target ฿1,271,000"></div>
+    </div>
+  </td>
+  <td class="num">฿1.86M</td>
+  <td class="num dim">฿1.27M</td>
+  <td class="num verdict good">ahead · +46.5%</td>
+  <td class="num dim occ">11%<span class="vs">vs 37%</span></td>
+</tr>
+<tr class="mrow future">
+  <th scope="row" class="mname">Dec<span class="mstate">on the books</span></th>
+  <td class="mbar">
+    <div class="track">
+      <div class="fill" style="width:10.75%;background:var(--plan-next)"></div>
+      <div class="tgtline" style="left:100.00%" title="target ฿2,823,000"></div>
+    </div>
+  </td>
+  <td class="num">฿303k</td>
+  <td class="num dim">฿2.82M</td>
+  <td class="num verdict short">฿2.52M to sell</td>
+  <td class="num dim occ">10%<span class="vs">vs 74%</span></td>
+</tr></tbody>
+  </table></div>
+</section>
+
+<section>
+  <div class="sechead"><h2>What Revenue Sentinel did</h2>
+    <p>These are counts from the rate-write audit trail (<code>data/rate_changes/</code>) — what Revenue Sentinel executed, which is what it controls. Revenue above depends on market demand as well as rate.</p></div>
+  <div class="grid">
+      <div class="scard"><div class="sv">1,735</div>
+        <div class="sl">rates written</div>
+        <div class="sn">99.5% of 1,744 attempts succeeded</div></div>
+      <div class="scard"><div class="sv">259</div>
+        <div class="sl">stay dates repriced</div>
+        <div class="sn">across 5 room types</div></div>
+      <div class="scard"><div class="sv">8,770</div>
+        <div class="sl">individual rates set</div>
+        <div class="sn">1,754 rate-days × 5 room types</div></div>
+      <div class="scard"><div class="sv">190</div>
+        <div class="sl">days priced ahead</div>
+        <div class="sn">forward plan maintained daily</div></div>
+      <div class="scard"><div class="sv">91</div>
+        <div class="sl">days on watch</div>
+        <div class="sn">2026-05-18 → 2026-08-16, no gaps</div></div>
+      <div class="scard"><div class="sv">58h</div>
+        <div class="sl">operator time saved</div>
+        <div class="sn">assumes 2 min per manual update</div></div></div>
+</section>
+
+<script src="demo_dateshift.js" defer></script>
+</body></html>

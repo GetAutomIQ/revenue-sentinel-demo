@@ -18,6 +18,7 @@
     --green:    #00e5a0;
     --amber:    #ff8c42;
     --red:      #ff4f6a;
+    --neutral:  #7e9cbd;
     --serif:    'DM Serif Display', Georgia, serif;
     --mono:     'DM Mono', ui-monospace, monospace;
     --sans:     'DM Sans', system-ui, sans-serif;
@@ -27,11 +28,12 @@
     --surface:  #fdfcf9;
     --border:   #e4ddcf;
     --text:     #1a1a18;
-    --muted:    #7a7a72;
-    --gold:     #b5924a;
-    --green:    #5a7d5a;
-    --amber:    #c0883c;
-    --red:      #a85a4a;
+    --muted:    #70685b;
+    --gold:     #7e6533;
+    --green:    #517051;
+    --amber:    #945b1a;
+    --red:      #9e5445;
+    --neutral:  #70685b;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -188,7 +190,9 @@
     font-weight: 500;
     padding: 3px 9px;
     border-radius: 2px;
-    border: 1px solid;
+    color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
     white-space: nowrap;
   }
 
@@ -226,13 +230,13 @@
     font-family: var(--mono);
     font-size: 10px;
     padding: 2px 7px;
-    background: #1e1e2e;
+    background: var(--bg);
     border-radius: 2px;
-    color: var(--muted);
+    color: var(--neutral);
   }
 
   .tag.err {
-    background: #1f0707;
+    background: var(--bg);
     color: var(--red);
   }
 
@@ -274,7 +278,7 @@
 
   /* light-theme fixes for chips whose backgrounds were hardcoded for dark */
   [data-theme="light"] .tag { background: #f0ece2; }
-  [data-theme="light"] .tag.err { background: #f3e0da; }
+  [data-theme="light"] .tag.err { background: #f7e9e5; }
 </style>
 </head>
 <body>
@@ -285,26 +289,26 @@
     <div class="logo-sub">System Health Monitor — AutomIQ Hotel</div>
   </div>
   <div class="header-right">
-    <div class="timestamp">2026-08-13 20:40:01</div>
+    <div class="timestamp">2026-08-16 19:21:02</div>
     <div class="refresh-note">auto-refreshes every 5 minutes</div>
   </div>
 </div>
 
-<div class="section-label">PMS Snapshot — 2026-08-13</div>
+<div class="section-label">PMS Snapshot — 2026-08-16</div>
 <div class="pms-bar">
   <div class="pms-metric">
     <span class="pms-label">Occupancy</span>
-    <span class="pms-value">13.16%</span>
-    <span class="pms-sub">5 of 38 rooms</span>
+    <span class="pms-value">7.89%</span>
+    <span class="pms-sub">3 of 38 rooms</span>
   </div>
   <div class="pms-metric">
     <span class="pms-label">ADR</span>
-    <span class="pms-value">฿7,611</span>
+    <span class="pms-value">฿10,136</span>
     <span class="pms-sub">avg daily rate</span>
   </div>
   <div class="pms-metric">
     <span class="pms-label">RevPAR</span>
-    <span class="pms-value">฿1,001</span>
+    <span class="pms-value">฿800</span>
     <span class="pms-sub">revenue per avail room</span>
   </div>
   <div class="pms-metric">
@@ -317,104 +321,104 @@
 <div class="section-label">Employee Status</div>
 <div class="cards">
 
-        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+        <div class="card" style="--accent:var(--green)">
             <div class="card-header">
                 <span class="emp-id">E1</span>
                 <span class="emp-role">PMS Scraper</span>
-                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                <span class="status-badge">
                     ● OK
                 </span>
             </div>
             <div class="card-body">
-                <div class="card-detail">Occupancy : 13.16%</div>
+                <div class="card-detail">Occupancy : 7.89%</div>
                 <div class="card-meta">
-                    <span>Last run: <strong>2026-08-13 20:34:00</strong></span>
-                    <span class="age">6m ago</span>
+                    <span>Last run: <strong>2026-08-16 18:33:58</strong></span>
+                    <span class="age">47m ago</span>
                 </div>
                 <div class="tags"></div>
             </div>
         </div>
-        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+        <div class="card" style="--accent:var(--green)">
             <div class="card-header">
                 <span class="emp-id">E2</span>
                 <span class="emp-role">Dashboard Builder</span>
-                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                <span class="status-badge">
                     ● OK
                 </span>
             </div>
             <div class="card-body">
                 <div class="card-detail">Dashboard rebuilt</div>
                 <div class="card-meta">
-                    <span>Last run: <strong>2026-08-13 20:36:01</strong></span>
-                    <span class="age">3m ago</span>
+                    <span>Last run: <strong>2026-08-16 18:36:02</strong></span>
+                    <span class="age">44m ago</span>
                 </div>
                 <div class="tags"></div>
             </div>
         </div>
-        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+        <div class="card" style="--accent:var(--green)">
             <div class="card-header">
                 <span class="emp-id">E3</span>
                 <span class="emp-role">Rate Intelligence</span>
-                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                <span class="status-badge">
                     ● OK
                 </span>
             </div>
             <div class="card-body">
-                <div class="card-detail">]   Na Nirand Romantic Boutique Resort: fetched=15 skipped=0 no_avail=0 errors=0</div>
+                <div class="card-detail">58 fetched, 2 no_availability, 0 errors</div>
                 <div class="card-meta">
-                    <span>Last run: <strong>2026-08-13 20:39:57</strong></span>
-                    <span class="age">0m ago</span>
+                    <span>Last run: <strong>2026-08-16 18:40:22</strong></span>
+                    <span class="age">40m ago</span>
                 </div>
-                <div class="tags"></div>
+                <div class="tags"><span class="tag">records: 58</span></div>
             </div>
         </div>
-        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+        <div class="card" style="--accent:var(--green)">
             <div class="card-header">
                 <span class="emp-id">E4</span>
                 <span class="emp-role">Rate Comparator</span>
-                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                <span class="status-badge">
                     ● OK
                 </span>
             </div>
             <div class="card-body">
                 <div class="card-detail">30 dates loaded, 5 flags raised</div>
                 <div class="card-meta">
-                    <span>Last run: <strong>2026-08-13 19:50:01</strong></span>
-                    <span class="age">49m ago</span>
+                    <span>Last run: <strong>2026-08-16 18:50:02</strong></span>
+                    <span class="age">30m ago</span>
                 </div>
                 <div class="tags"><span class="tag">records: 30</span><span class="tag">flags: 5</span></div>
             </div>
         </div>
-        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+        <div class="card" style="--accent:var(--green)">
             <div class="card-header">
                 <span class="emp-id">E-SM</span>
                 <span class="emp-role">Session Refresh</span>
-                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                <span class="status-badge">
                     ● OK
                 </span>
             </div>
             <div class="card-body">
-                <div class="card-detail">Refreshed 49m ago, ~11m JWT remaining</div>
+                <div class="card-detail">Refreshed 40m ago, ~20m JWT remaining</div>
                 <div class="card-meta">
-                    <span>Last run: <strong>2026-08-13 19:50:52</strong></span>
-                    <span class="age">49m ago</span>
+                    <span>Last run: <strong>2026-08-16 18:40:52</strong></span>
+                    <span class="age">40m ago</span>
                 </div>
                 <div class="tags"></div>
             </div>
         </div>
-        <div class="card" style="--accent:#22c55e; --bg:#052e16">
+        <div class="card" style="--accent:var(--green)">
             <div class="card-header">
                 <span class="emp-id">E1-RATES</span>
                 <span class="emp-role">Rate Reader</span>
-                <span class="status-badge" style="background:#22c55e20; color:#22c55e; border-color:#22c55e40">
+                <span class="status-badge">
                     ● OK
                 </span>
             </div>
             <div class="card-body">
-                <div class="card-detail">Refreshed 6m ago — 15/15 set</div>
+                <div class="card-detail">Refreshed 47m ago — 15/15 set</div>
                 <div class="card-meta">
-                    <span>Last run: <strong>2026-08-13 20:34:00</strong></span>
-                    <span class="age">6m ago</span>
+                    <span>Last run: <strong>2026-08-16 18:33:58</strong></span>
+                    <span class="age">47m ago</span>
                 </div>
                 <div class="tags"><span class="tag">records: 15</span></div>
             </div>
@@ -423,12 +427,13 @@
 
 <div class="section-label">Active Flags</div>
 <div class="flags-panel">
-<div class="flag-row">🔴 Tonight's rate ฿8250 is 40.2% below market average ฿13788</div><div class="flag-row">🔴 Today's occupancy is 13.16% (5 of 38 rooms)</div><div class="flag-row">🟡 August 2026: OTB 258 RN vs LY 378 (-31.7% YoY)</div><div class="flag-row">🟡 September 2026: OTB 199 RN vs LY 303 (-34.3% YoY)</div><div class="flag-row">🟡 November 2026: OTB 128 RN vs LY 370 (-65.4% YoY)</div>
+<div class="flag-row">🔴 Tonight's rate ฿11500 is 21.6% below market average ฿14672</div><div class="flag-row">🔴 Today's occupancy is 7.89% (3 of 38 rooms)</div><div class="flag-row">🟡 August 2026: OTB 260 RN vs LY 378 (-31.2% YoY)</div><div class="flag-row">🟡 September 2026: OTB 198 RN vs LY 303 (-34.7% YoY)</div><div class="flag-row">🟡 November 2026: OTB 133 RN vs LY 370 (-64.1% YoY)</div>
 </div>
 
 <footer>
-  Revenue Sentinel · AutomIQ Hotel · Chiang Mai · Generated 2026-08-13 20:40:01 · Refreshes every 5 min
+  Revenue Sentinel · AutomIQ Hotel · Chiang Mai · Generated 2026-08-16 19:21:02 · Refreshes every 5 min
 </footer>
 
+<script src="demo_dateshift.js" defer></script>
 </body>
 </html>
