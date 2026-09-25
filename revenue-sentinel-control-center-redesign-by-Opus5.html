@@ -162,6 +162,8 @@ svg{display:block;max-width:100%}
 .pill.violet{background:var(--future-tint);color:var(--future)}
 .pill.blue{background:var(--current-tint);color:var(--current)}
 .pill.quiet{background:var(--raised);color:var(--text2)}
+.fx-note{font-size:11px;color:var(--text2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.money{white-space:nowrap}
 .pill.live::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;animation:pulse 2.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
 
@@ -263,7 +265,9 @@ svg{display:block;max-width:100%}
 .legend i{width:9px;height:9px;border-radius:2px;display:inline-block;flex:none}
 .axis-note{font-size:11px;color:var(--text2);margin-top:8px}
 .ring-row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
-.ring-row .ring{flex:none}
+.ring-row .ring{flex:none;margin-inline:auto}
+/* The ring slot is square, so it must not inherit the rectangular charts' padding. */
+.ring .chart-wrap{padding:0}
 .ring-cap{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--text2);text-align:center;margin-top:6px}
 
 /* progress / composition bars */
@@ -420,7 +424,6 @@ svg{display:block;max-width:100%}
 @keyframes rs-bar-right{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @keyframes rs-draw{from{stroke-dashoffset:var(--len)}to{stroke-dashoffset:0}}
 @keyframes rs-appear{from{opacity:0}to{opacity:1}}
-@keyframes rs-arc{from{stroke-dasharray:0 var(--circ)}to{stroke-dasharray:var(--dash) var(--circ)}}
 @keyframes rs-wedge{from{transform:scale(.72);opacity:0}to{transform:none;opacity:1}}
 @keyframes rs-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
@@ -428,7 +431,6 @@ svg{display:block;max-width:100%}
 .rs-hbar{transform-box:fill-box;transform-origin:left center;animation:rs-bar-right .55s var(--ease) both}
 .rs-line{animation:rs-draw .9s var(--ease) both}
 .rs-dot,.rs-val{animation:rs-appear .3s ease both}
-.rs-arc{transform-box:fill-box;animation:rs-arc .9s var(--ease) both}
 .rs-wedge{transform-box:fill-box;transform-origin:center;animation:rs-wedge .5s var(--ease) both}
 .rs-seg{transform-box:fill-box;transform-origin:left center;animation:rs-bar-right .6s var(--ease) both}
 
@@ -441,9 +443,10 @@ svg{display:block;max-width:100%}
 }
 
 @media (prefers-reduced-motion:reduce){
-  .rs-bar,.rs-hbar,.rs-line,.rs-dot,.rs-val,.rs-arc,.rs-wedge,.rs-seg,
+  .rs-bar,.rs-hbar,.rs-line,.rs-dot,.rs-val,.rs-wedge,.rs-seg,
   .mbar .fill,.bar-track span,.ov-track i,.pk-bar i,
   .page .card,.page .tile,.page .gauge,.page .ov{animation:none !important}
+  .rs-arc{transition:none !important}
 }
 
 /* ---------------- the ⓘ button ----------------
@@ -481,6 +484,9 @@ svg{display:block;max-width:100%}
 .pk-cols,.pk-row{
   display:grid;grid-template-columns:116px minmax(120px,1fr) 58px 66px 52px 74px;
   gap:10px;align-items:center;
+}
+.pk-cols.wide,.pk-row.wide{
+  grid-template-columns:100px minmax(80px,1fr) 48px 56px 44px 64px 70px 92px;
 }
 .pk-cols{
   font-size:9.5px;font-weight:700;letter-spacing:.11em;text-transform:uppercase;
@@ -535,6 +541,48 @@ svg{display:block;max-width:100%}
 .news-links a{font-size:13px;color:var(--text);display:flex;gap:9px;align-items:baseline}
 .news-links a::before{content:"›";color:var(--action);font-weight:700}
 .news-links a:hover{color:var(--action)}
+
+
+/* ---------------- Inbox — layout carried over from the 6Astra draft ----------------
+   Avatar, one-line preview and a search box over the same filter chips. */
+.inbox-search{display:block;font-size:11px;color:var(--text2);margin:2px 0 15px}
+.inbox-search input{
+  display:block;width:100%;margin-top:6px;padding:12px 15px;min-height:44px;
+  background:var(--raised);border:1px solid var(--divider);color:var(--text);
+  border-radius:var(--radius-sm);font-size:14px;
+}
+.inbox-search input:focus{outline:2px solid var(--action);outline-offset:1px}
+#page-inbox .section:first-of-type>.card{background:linear-gradient(115deg,var(--action-tint),var(--surface) 45%);padding:25px}
+#page-inbox .conversation-list{padding:0;background:none;border:0;display:grid;gap:12px}
+#page-inbox .msg{
+  background:var(--surface);border:1px solid var(--divider);border-radius:12px;
+  overflow:hidden;transition:border-color .2s ease,box-shadow .2s ease;
+}
+#page-inbox .msg:hover{border-color:var(--outline)}
+#page-inbox .msg[open]{border-color:var(--action);box-shadow:var(--shadow-sm)}
+#page-inbox .msg summary{
+  display:grid;grid-template-columns:42px auto auto minmax(100px,1fr) auto;
+  gap:7px 12px;padding:18px 22px;align-items:center;
+}
+#page-inbox .message-avatar{
+  grid-column:1;grid-row:1/4;width:36px;height:36px;display:grid;place-items:center;
+  border-radius:10px;background:var(--action-tint);color:var(--action);font-size:11px;font-weight:700;
+}
+#page-inbox .outgoing .message-avatar{background:var(--current-tint);color:var(--current)}
+#page-inbox .message-subject{grid-column:2/5;grid-row:2;font-size:14px;min-width:0;color:var(--text);margin-top:2px}
+#page-inbox .when{grid-column:5;grid-row:1;font-size:10px}
+#page-inbox .message-preview{
+  grid-column:2/5;grid-row:3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  color:var(--text2);font-size:12px;max-width:100%;
+}
+#page-inbox summary>.k-more{grid-column:5;grid-row:2/4;font-size:11px}
+#page-inbox .msg[open] .message-preview{display:none}
+#page-inbox .msg .body{padding:0 22px 22px 76px}
+#page-inbox .quote{background:var(--raised);border-left:3px solid var(--action);padding:22px;font-size:13px;line-height:1.8}
+#page-inbox .outgoing .quote{border-color:var(--current)}
+#page-inbox .tag{font-size:10px;justify-self:start}
+#page-inbox .chips{gap:7px}
+#page-inbox .chips button{font-size:12px;min-height:37px;padding:7px 11px}
 
 /* ---------------- second layer ---------------- */
 .scrim{position:fixed;inset:0;background:var(--scrim);backdrop-filter:blur(3px);z-index:90;opacity:0;pointer-events:none;transition:opacity .2s ease}
@@ -657,7 +705,7 @@ svg{display:block;max-width:100%}
   .menu-btn{display:grid}
   .content,.topbar{padding-left:16px;padding-right:16px}
   .topbar{gap:10px}
-  .topbar .seg,.topbar .pill{display:none}
+  .topbar .seg,.topbar .pill,.fx-note{display:none}
   .page-head h2{font-size:28px}
   .page-head .right{margin-left:0;text-align:left;width:100%}
   .section-head{flex-wrap:wrap;gap:8px}
@@ -670,6 +718,18 @@ svg{display:block;max-width:100%}
   .day{min-height:74px}
   .bar-row{grid-template-columns:1fr;gap:5px}
   .pk-cols,.pk-row{grid-template-columns:88px minmax(70px,1fr) 44px 48px 42px}
+  .pk-cols.wide,.pk-row.wide{grid-template-columns:88px minmax(70px,1fr) 44px 48px 42px}
+  .pk-cols.wide>:nth-child(n+6),.pk-row.wide>:nth-child(n+6){display:none}
+  #page-inbox .section:first-of-type>.card{padding:20px}
+  #page-inbox .msg summary{grid-template-columns:32px auto minmax(0,1fr);gap:8px;padding:16px}
+  #page-inbox .message-avatar{width:29px;height:29px;font-size:10px;grid-row:1/4}
+  #page-inbox .when{grid-column:2/4;grid-row:2}
+  #page-inbox .message-subject{grid-column:2/4;grid-row:3;font-size:13px}
+  #page-inbox .message-preview{grid-column:2/4;grid-row:4}
+  #page-inbox summary>.k-more{grid-column:2/4;grid-row:5}
+  #page-inbox .msg .body{padding:0 15px 15px}
+  #page-inbox .quote{font-size:12px;padding:15px}
+  #page-inbox .tag{font-size:9px;padding:3px 5px}
   .pk-cols .pk-ctx-h,.pk-row .pk-ctx{display:none}
   .ov-bar{grid-template-columns:54px minmax(0,1fr) 38px}
   .modal{width:calc(100vw - 20px);max-height:calc(100vh - 32px);border-radius:14px}
@@ -744,8 +804,9 @@ svg{display:block;max-width:100%}
       </div>
       <div class="spacer"></div>
       <span class="pill live">Live</span>
-      <div class="seg" role="group" aria-label="Language"><button aria-pressed="true">EN</button><button aria-pressed="false">TH</button></div>
-      <div class="seg" role="group" aria-label="Currency"><button aria-pressed="true">THB</button><button aria-pressed="false">EUR</button></div>
+      <div class="seg" id="lang-seg" role="group" aria-label="Language"><button data-lang="en" aria-pressed="true">EN</button><button data-lang="th" aria-pressed="false">TH</button></div>
+      <div class="seg" id="currency-seg" role="group" aria-label="Currency"><button data-cur="THB" aria-pressed="true">THB</button><button data-cur="USD" aria-pressed="false">USD</button></div>
+      <span class="fx-note" id="fx-note" hidden></span>
       <button class="icon-btn" id="bell" aria-label="Notifications, 3 unread">
         <svg width="17" height="17" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="M4 6.6a4 4 0 118 0c0 3 1.2 4.2 1.2 4.2H2.8S4 9.6 4 6.6z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M6.5 13.2a1.7 1.7 0 003 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         <span class="pip">3</span>
@@ -892,7 +953,7 @@ svg{display:block;max-width:100%}
             </tr>
             <tr class="click" onclick="location.hash='#system-health'">
               <td class="lead"><a href="#system-health">System Health</a></td>
-              <td style="text-align:left;font-size:13px;color:var(--text2)">PMS snapshot, six agent cards, active flags, 28-day job success rate</td>
+              <td style="text-align:left;font-size:13px;color:var(--text2)">Six agent cards, active flags, 28-day job success rate</td>
               <td style="text-align:left;font-size:13px;color:var(--text2)">Reasoning behind each flag (×5)</td>
               <td style="text-align:left"><span class="tag">watchdog.py</span></td>
             </tr></tbody></table></div>
@@ -1442,7 +1503,11 @@ svg{display:block;max-width:100%}
               <div class="k-sub">606 sent · 162 received</div>
             </div>
             <div style="flex:1;min-width:300px">
-              <div class="k-label">Filter</div>
+              <label class="inbox-search" for="inbox-search">Search this conversation
+                <input id="inbox-search" type="search" data-search="inbox"
+                       placeholder="Search proposals, dates or messages…"
+                       aria-label="Search this conversation">
+              </label>
               <div class="chips" data-filters="inbox"><button data-filter="all" aria-pressed="true">All</button><button data-filter="received" aria-pressed="false">Received</button><button data-filter="sent" aria-pressed="false">Sent</button><button data-filter="briefing" aria-pressed="false">Briefing</button><button data-filter="6m" aria-pressed="false">6M proposal</button><button data-filter="14d" aria-pressed="false">14-day proposal</button><button data-filter="confirmation" aria-pressed="false">Confirmation</button><button data-filter="rejection" aria-pressed="false">Rejection</button></div>
             </div>
           </div>
@@ -1452,15 +1517,18 @@ svg{display:block;max-width:100%}
       <section class="section">
         <div class="section-head"><h3>Conversation</h3><div class="rule"></div>
           <span class="hint">Showing <b id="inbox-count">14</b> of 768 · newest first · click a row to read the message</span></div>
-        <div class="card pad0">
+        <div class="card pad0 conversation-list">
 
-          <details class="msg" data-filter-set="inbox" data-tags="received 14d">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received 14d">
+            <summary aria-label="Received: 14-day proposal · 7 change(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag amber">14-day proposal</span>
-              <span class="subj">14-day proposal · 7 change(s)</span>
+              <span class="subj message-subject">14-day proposal · 7 change(s)</span>
               <span class="when num">23.09.2026 · 19:55</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel 🔄 Rate proposal — 7 dates for 23 Sep · Wed 📊 Situation • Today's occupancy: 7.89% • Our ADR: ฿10,136 📝 Rate adjustments • 16 [23 Se…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1486,25 +1554,31 @@ Exceptions only: 28=2500 (counter) · 28=NO (skip).
 Unmentioned dates are auto-approved at the proposed rate.
 ref prop_20260923T195502_e8e3aa</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="sent confirmation">
-            <summary>
+          <details class="msg outgoing"
+              data-filter-set="inbox" data-tags="sent confirmation">
+            <summary aria-label="Sent: Manager confirmed · 15 rate(s)">
+              <span class="message-avatar" aria-hidden="true">MV</span>
               <span class="tag mint">sent</span>
               <span class="tag mint">Confirmation</span>
-              <span class="subj">Manager confirmed · 15 rate(s)</span>
+              <span class="subj message-subject">Manager confirmed · 15 rate(s)</span>
               <span class="when num">23.09.2026 · 12:40</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">OK — sent from the manager's WhatsApp at 12:40 ICT</span>
             </summary>
             <div class="body"><div class="quote">OK
 
 — sent from the manager's WhatsApp at 12:40 ICT</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received confirmation">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received confirmation">
+            <summary aria-label="Received: 6M applied · 15 date(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag mint">Confirmation</span>
-              <span class="subj">6M applied · 15 date(s)</span>
+              <span class="subj message-subject">6M applied · 15 date(s)</span>
               <span class="when num">23.09.2026 · 12:48</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel ✅ Applied to HotelTime — 15 dates All 15 rates from the 6-month proposal are written and verified on the channel. No exceptions wer…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1516,13 +1590,16 @@ No exceptions were taken.
 Queued 12:40 · applying 12:41 · verified 12:48
 ref apply_20260923T124005_b71c2e</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received briefing">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received briefing">
+            <summary aria-label="Received: Morning briefing · 23.09.2026">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag blue">Briefing</span>
-              <span class="subj">Morning briefing · 23.09.2026</span>
+              <span class="subj message-subject">Morning briefing · 23.09.2026</span>
               <span class="when num">23.09.2026 · 08:05</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel · Morning briefing 23 Sep 2026 · 08:05 ICT 📊 Last night • Occupancy 7.89% — 3 of 38 rooms • ADR ฿10,136 · RevPAR ฿800 📈 Pick-up, la…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel · Morning briefing
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1546,13 +1623,16 @@ ref apply_20260923T124005_b71c2e</div></div>
 • September pick-up is slower than the calendar suggests
 • 5 active flags — see System Health</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received 14d">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received 14d">
+            <summary aria-label="Received: 14-day proposal · 10 change(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag amber">14-day proposal</span>
-              <span class="subj">14-day proposal · 10 change(s)</span>
+              <span class="subj message-subject">14-day proposal · 10 change(s)</span>
               <span class="when num">22.09.2026 · 19:55</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel 🔄 Rate proposal — 7 dates for 23 Sep · Wed 📊 Situation • Today's occupancy: 7.89% • Our ADR: ฿10,136 📝 Rate adjustments • 16 [23 Se…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1578,25 +1658,31 @@ Exceptions only: 28=2500 (counter) · 28=NO (skip).
 Unmentioned dates are auto-approved at the proposed rate.
 ref prop_20260923T195502_e8e3aa</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="sent rejection">
-            <summary>
+          <details class="msg outgoing"
+              data-filter-set="inbox" data-tags="sent rejection">
+            <summary aria-label="Sent: Manager rejected · 10 rate(s)">
+              <span class="message-avatar" aria-hidden="true">MV</span>
               <span class="tag mint">sent</span>
               <span class="tag rose">Rejection</span>
-              <span class="subj">Manager rejected · 10 rate(s)</span>
+              <span class="subj message-subject">Manager rejected · 10 rate(s)</span>
               <span class="when num">22.09.2026 · 20:02</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">NO — sent from the manager's WhatsApp at 20:02 ICT</span>
             </summary>
             <div class="body"><div class="quote">NO
 
 — sent from the manager's WhatsApp at 20:02 ICT</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received 6m">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received 6m">
+            <summary aria-label="Received: 6M proposal · 155 change(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag violet">6M proposal</span>
-              <span class="subj">6M proposal · 155 change(s)</span>
+              <span class="subj message-subject">6M proposal · 155 change(s)</span>
               <span class="when num">22.09.2026 · 09:20</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel 🔄 6-month forward plan — 155 dates The forward plan is rebuilt weekly from seasonality, the compset pattern and your rate floor. Da…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1608,13 +1694,16 @@ Dates already live on the channel are not touched.
 💬 Reply OK to approve all, NO to reject all.
 ref prop6m_20260922T092011_3fd902</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received 14d">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received 14d">
+            <summary aria-label="Received: 14-day proposal · 5 change(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag amber">14-day proposal</span>
-              <span class="subj">14-day proposal · 5 change(s)</span>
+              <span class="subj message-subject">14-day proposal · 5 change(s)</span>
               <span class="when num">21.09.2026 · 19:55</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel 🔄 Rate proposal — 7 dates for 23 Sep · Wed 📊 Situation • Today's occupancy: 7.89% • Our ADR: ฿10,136 📝 Rate adjustments • 16 [23 Se…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1640,25 +1729,31 @@ Exceptions only: 28=2500 (counter) · 28=NO (skip).
 Unmentioned dates are auto-approved at the proposed rate.
 ref prop_20260923T195502_e8e3aa</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="sent confirmation">
-            <summary>
+          <details class="msg outgoing"
+              data-filter-set="inbox" data-tags="sent confirmation">
+            <summary aria-label="Sent: Manager partially confirmed · 9 rate(s)">
+              <span class="message-avatar" aria-hidden="true">MV</span>
               <span class="tag mint">sent</span>
               <span class="tag mint">Confirmation</span>
-              <span class="subj">Manager partially confirmed · 9 rate(s)</span>
+              <span class="subj message-subject">Manager partially confirmed · 9 rate(s)</span>
               <span class="when num">21.09.2026 · 20:11</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">OK except 28=2500 — sent from the manager's WhatsApp at 20:11 ICT</span>
             </summary>
             <div class="body"><div class="quote">OK except 28=2500
 
 — sent from the manager's WhatsApp at 20:11 ICT</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received briefing">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received briefing">
+            <summary aria-label="Received: Morning briefing · 21.09.2026">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag blue">Briefing</span>
-              <span class="subj">Morning briefing · 21.09.2026</span>
+              <span class="subj message-subject">Morning briefing · 21.09.2026</span>
               <span class="when num">21.09.2026 · 08:05</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel · Morning briefing 23 Sep 2026 · 08:05 ICT 📊 Last night • Occupancy 7.89% — 3 of 38 rooms • ADR ฿10,136 · RevPAR ฿800 📈 Pick-up, la…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel · Morning briefing
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1682,13 +1777,16 @@ ref prop_20260923T195502_e8e3aa</div></div>
 • September pick-up is slower than the calendar suggests
 • 5 active flags — see System Health</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received 14d">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received 14d">
+            <summary aria-label="Received: 14-day proposal · 12 change(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag amber">14-day proposal</span>
-              <span class="subj">14-day proposal · 12 change(s)</span>
+              <span class="subj message-subject">14-day proposal · 12 change(s)</span>
               <span class="when num">20.09.2026 · 19:55</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel 🔄 Rate proposal — 7 dates for 23 Sep · Wed 📊 Situation • Today's occupancy: 7.89% • Our ADR: ฿10,136 📝 Rate adjustments • 16 [23 Se…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1714,13 +1812,16 @@ Exceptions only: 28=2500 (counter) · 28=NO (skip).
 Unmentioned dates are auto-approved at the proposed rate.
 ref prop_20260923T195502_e8e3aa</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received confirmation">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received confirmation">
+            <summary aria-label="Received: Horizon approval recorded">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag mint">Confirmation</span>
-              <span class="subj">Horizon approval recorded</span>
+              <span class="subj message-subject">Horizon approval recorded</span>
               <span class="when num">20.09.2026 · 11:30</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel ✅ Horizon approval recorded Automatic mode is on for the next 14 days within the rate floor. Proposals outside the floor will still…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1729,13 +1830,16 @@ ref prop_20260923T195502_e8e3aa</div></div>
 Automatic mode is on for the next 14 days within the rate floor.
 Proposals outside the floor will still be sent for review.</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received 14d">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received 14d">
+            <summary aria-label="Received: 14-day proposal · 8 change(s)">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag amber">14-day proposal</span>
-              <span class="subj">14-day proposal · 8 change(s)</span>
+              <span class="subj message-subject">14-day proposal · 8 change(s)</span>
               <span class="when num">19.09.2026 · 19:55</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel 🔄 Rate proposal — 7 dates for 23 Sep · Wed 📊 Situation • Today's occupancy: 7.89% • Our ADR: ฿10,136 📝 Rate adjustments • 16 [23 Se…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -1761,13 +1865,16 @@ Exceptions only: 28=2500 (counter) · 28=NO (skip).
 Unmentioned dates are auto-approved at the proposed rate.
 ref prop_20260923T195502_e8e3aa</div></div>
           </details>
-          <details class="msg" data-filter-set="inbox" data-tags="received briefing">
-            <summary>
+          <details class="msg incoming"
+              data-filter-set="inbox" data-tags="received briefing">
+            <summary aria-label="Received: Morning briefing · 19.09.2026">
+              <span class="message-avatar" aria-hidden="true">RS</span>
               <span class="tag blue">received</span>
               <span class="tag blue">Briefing</span>
-              <span class="subj">Morning briefing · 19.09.2026</span>
+              <span class="subj message-subject">Morning briefing · 19.09.2026</span>
               <span class="when num">19.09.2026 · 08:05</span>
-              <span class="k-more" style="margin:0">View ↗</span>
+              <span class="k-more" style="margin:0">Read message ↓</span>
+              <span class="message-preview">🪙 Revenue Sentinel · Morning briefing 23 Sep 2026 · 08:05 ICT 📊 Last night • Occupancy 7.89% — 3 of 38 rooms • ADR ฿10,136 · RevPAR ฿800 📈 Pick-up, la…</span>
             </summary>
             <div class="body"><div class="quote">🪙 Revenue Sentinel · Morning briefing
 ━━━━━━━━━━━━━━━━━━━━━━
@@ -2943,7 +3050,7 @@ ref prop_20260923T195502_e8e3aa</div></div>
             </div>
           </div>
           <div class="tabs" role="tablist" aria-label="Pick-up view" data-panels="mopu"><button role="tab" aria-selected="true" data-tab="mopu-0">by stay date</button><button role="tab" aria-selected="false" data-tab="mopu-1">by day it was done</button></div>
-          <div style="margin-top:14px"><div data-panel-set="mopu" data-panel="mopu-0"><div class="pk-cols"><span>By stay date</span><span></span><span>Booked</span><span>Cancelled</span><span>Net</span><span>ADR ฿</span><span>RevPAR ฿</span><span class='pk-ctx-h'>Revenue ฿</span></div><div><div class="pk-row"><span class="pk-day">Tue 01 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">3,590</span><span class="num">1,417</span><span class="num">53,843</span></div><div class="pk-row"><span class="pk-day">Wed 02 Sep</span><span class="pk-bar"><i class='new' style='width:2.4%'></i></span><span class="num"><span class="">+1</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">3,791</span><span class="num">1,297</span><span class="num">49,289</span></div><div class="pk-row"><span class="pk-day">Thu 03 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">5,127</span><span class="num">2,833</span><span class="num">107,658</span></div><div class="pk-row weekend"><span class="pk-day">Fri 04 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Sat 05 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Sun 06 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">3,600</span><span class="num">2,084</span><span class="num">79,195</span></div><div class="pk-row"><span class="pk-day">Mon 07 Sep</span><span class="pk-bar"><i class='new' style='width:19.0%'></i></span><span class="num"><span class="">+8</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+8</span><span class="num pk-ctx">4,075</span><span class="num">2,252</span><span class="num">85,567</span></div><div class="pk-row"><span class="pk-day">Tue 08 Sep</span><span class="pk-bar"><i class='new' style='width:7.1%'></i></span><span class="num"><span class="">+3</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+3</span><span class="num pk-ctx">2,042</span><span class="num">860</span><span class="num">32,678</span></div><div class="pk-row"><span class="pk-day">Wed 09 Sep</span><span class="pk-bar"><i class='new' style='width:7.1%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+3</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">1,918</span><span class="num">757</span><span class="num">28,770</span></div><div class="pk-row"><span class="pk-day">Thu 10 Sep</span><span class="pk-bar"><i class='new' style='width:11.9%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+3</span><span class="num pk-ctx">3,903</span><span class="num">616</span><span class="num">23,418</span></div><div class="pk-row weekend"><span class="pk-day">Fri 11 Sep</span><span class="pk-bar"><i class='new' style='width:9.5%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+4</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+2</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Sat 12 Sep</span><span class="pk-bar"><i class='new' style='width:7.1%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+3</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Sun 13 Sep</span><span class="pk-bar"><i class='new' style='width:2.4%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+1</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net neg">-1</span><span class="num pk-ctx">9,131</span><span class="num">2,403</span><span class="num">91,312</span></div><div class="pk-row"><span class="pk-day">Mon 14 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:2.4%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">8,608</span><span class="num">2,718</span><span class="num">103,292</span></div><div class="pk-row"><span class="pk-day">Tue 15 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">8,935</span><span class="num">2,587</span><span class="num">98,288</span></div><div class="pk-row"><span class="pk-day">Wed 16 Sep</span><span class="pk-bar"><i class='new' style='width:9.5%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+4</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+2</span><span class="num pk-ctx">5,834</span><span class="num">921</span><span class="num">35,004</span></div><div class="pk-row"><span class="pk-day">Thu 17 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Fri 18 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Sat 19 Sep</span><span class="pk-bar"><i class='new' style='width:2.4%'></i><i class='canc' style='width:2.4%'></i></span><span class="num"><span class="">+1</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row weekend"><span class="pk-day">Sun 20 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row"><span class="pk-day">Mon 21 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">2,735</span><span class="num">1,151</span><span class="num">43,755</span></div><div class="pk-row"><span class="pk-day">Tue 22 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">2,692</span><span class="num">1,134</span><span class="num">43,076</span></div><div class="pk-row"><span class="pk-day">Wed 23 Sep</span><span class="pk-bar"><i class='new' style='width:40.5%'></i></span><span class="num"><span class="">+17</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+17</span><span class="num pk-ctx">5,720</span><span class="num">4,215</span><span class="num">160,153</span></div><div class="pk-row"><span class="pk-day">Thu 24 Sep</span><span class="pk-bar"><i class='new' style='width:40.5%'></i></span><span class="num"><span class="">+17</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+17</span><span class="num pk-ctx">4,027</span><span class="num">2,967</span><span class="num">112,744</span></div><div class="pk-row weekend"><span class="pk-day">Fri 25 Sep</span><span class="pk-bar"><i class='new' style='width:40.5%'></i></span><span class="num"><span class="">+17</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+17</span><span class="num pk-ctx">4,973</span><span class="num">2,225</span><span class="num">84,537</span></div><div class="pk-row weekend"><span class="pk-day">Sat 26 Sep</span><span class="pk-bar"><i class='new' style='width:50.0%'></i></span><span class="num"><span class="">+21</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+21</span><span class="num pk-ctx">8,310</span><span class="num">4,592</span><span class="num">174,511</span></div><div class="pk-row weekend"><span class="pk-day">Sun 27 Sep</span><span class="pk-bar"><i class='new' style='width:50.0%'></i></span><span class="num"><span class="">+21</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+21</span><span class="num pk-ctx">5,144</span><span class="num">2,843</span><span class="num">108,029</span></div><div class="pk-row"><span class="pk-day">Mon 28 Sep</span><span class="pk-bar"><i class='new' style='width:11.9%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+5</span><span class="num pk-ctx">2,532</span><span class="num">333</span><span class="num">12,659</span></div><div class="pk-row"><span class="pk-day">Tue 29 Sep</span><span class="pk-bar"><i class='new' style='width:11.9%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+5</span><span class="num pk-ctx">2,430</span><span class="num">320</span><span class="num">12,150</span></div><div class="pk-row"><span class="pk-day">Wed 30 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">0</span><span class="num">0</span><span class="num">0</span></div><div class="pk-row total"><span>Total · 30 nights</span><span></span><span class="num pos">+180</span><span class="num neg">−20</span><span class="num pk-net pos">+160</span><span class="num pk-ctx">4,738</span><span class="num">1,842</span><span class="num">1,539,931</span></div></div></div><div data-panel-set="mopu" data-panel="mopu-1" hidden><div class="pk-cols"><span>Booked on</span><span></span><span>Booked</span><span>Cancelled</span><span>Net</span><span class='pk-ctx-h'>Reservations</span></div><div><div class="pk-row"><span class="pk-day">Mon 01 Sep</span><span class="pk-bar"><i class='new' style='width:4.4%'></i></span><span class="num"><span class="">+12</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+12</span><span class="num pk-ctx">5</span></div><div class="pk-row"><span class="pk-day">Tue 02 Sep</span><span class="pk-bar"><i class='new' style='width:3.3%'></i><i class='canc' style='width:0.7%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+7</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Wed 03 Sep</span><span class="pk-bar"><i class='new' style='width:5.1%'></i><i class='canc' style='width:0.4%'></i></span><span class="num"><span class="">+14</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net pos">+13</span><span class="num pk-ctx">6</span></div><div class="pk-row"><span class="pk-day">Thu 04 Sep</span><span class="pk-bar"><i class='new' style='width:2.6%'></i></span><span class="num"><span class="">+7</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+7</span><span class="num pk-ctx">3</span></div><div class="pk-row"><span class="pk-day">Mon 08 Sep</span><span class="pk-bar"><i class='new' style='width:4.0%'></i><i class='canc' style='width:1.1%'></i></span><span class="num"><span class="">+11</span></span><span class="num"><span class="">−3</span></span><span class="num pk-net pos">+8</span><span class="num pk-ctx">5</span></div><div class="pk-row"><span class="pk-day">Wed 10 Sep</span><span class="pk-bar"><i class='new' style='width:2.2%'></i><i class='canc' style='width:0.7%'></i></span><span class="num"><span class="">+6</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+4</span><span class="num pk-ctx">3</span></div><div class="pk-row weekend"><span class="pk-day">Fri 12 Sep</span><span class="pk-bar"><i class='new' style='width:1.5%'></i><i class='canc' style='width:1.5%'></i></span><span class="num"><span class="">+4</span></span><span class="num"><span class="">−4</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Mon 15 Sep</span><span class="pk-bar"><i class='new' style='width:3.3%'></i><i class='canc' style='width:0.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net pos">+8</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Wed 17 Sep</span><span class="pk-bar"><i class='new' style='width:1.8%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+5</span><span class="num pk-ctx">2</span></div><div class="pk-row"><span class="pk-day">Tue 22 Sep</span><span class="pk-bar"><i class='new' style='width:6.6%'></i><i class='canc' style='width:2.6%'></i></span><span class="num"><span class="">+18</span></span><span class="num"><span class="">−7</span></span><span class="num pk-net pos">+11</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Wed 23 Sep</span><span class="pk-bar"><i class='new' style='width:50.0%'></i><i class='canc' style='width:9.9%'></i></span><span class="num"><span class="">+137</span></span><span class="num"><span class="">−27</span></span><span class="num pk-net pos">+110</span><span class="num pk-ctx">31</span></div><div class="pk-row"><span class="pk-day">Thu 24 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">0</span></div></div></div></div>
+          <div style="margin-top:14px"><div data-panel-set="mopu" data-panel="mopu-0"><div class="pk-cols wide"><span>By stay date</span><span></span><span>Booked</span><span>Cancelled</span><span>Net</span><span>ADR ฿</span><span>RevPAR ฿</span><span class='pk-ctx-h'>Revenue ฿</span></div><div><div class="pk-row wide"><span class="pk-day">Tue 01 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">3,590</span><span class="num">1,417</span><span class="num">53,843</span></div><div class="pk-row wide"><span class="pk-day">Wed 02 Sep</span><span class="pk-bar"><i class='new' style='width:2.4%'></i></span><span class="num"><span class="">+1</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">3,791</span><span class="num">1,297</span><span class="num">49,289</span></div><div class="pk-row wide"><span class="pk-day">Thu 03 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">5,127</span><span class="num">2,833</span><span class="num">107,658</span></div><div class="pk-row wide weekend"><span class="pk-day">Fri 04 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Sat 05 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Sun 06 Sep</span><span class="pk-bar"><i class='new' style='width:21.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+9</span><span class="num pk-ctx">3,600</span><span class="num">2,084</span><span class="num">79,195</span></div><div class="pk-row wide"><span class="pk-day">Mon 07 Sep</span><span class="pk-bar"><i class='new' style='width:19.0%'></i></span><span class="num"><span class="">+8</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+8</span><span class="num pk-ctx">4,075</span><span class="num">2,252</span><span class="num">85,567</span></div><div class="pk-row wide"><span class="pk-day">Tue 08 Sep</span><span class="pk-bar"><i class='new' style='width:7.1%'></i></span><span class="num"><span class="">+3</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+3</span><span class="num pk-ctx">2,042</span><span class="num">860</span><span class="num">32,678</span></div><div class="pk-row wide"><span class="pk-day">Wed 09 Sep</span><span class="pk-bar"><i class='new' style='width:7.1%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+3</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">1,918</span><span class="num">757</span><span class="num">28,770</span></div><div class="pk-row wide"><span class="pk-day">Thu 10 Sep</span><span class="pk-bar"><i class='new' style='width:11.9%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+3</span><span class="num pk-ctx">3,903</span><span class="num">616</span><span class="num">23,418</span></div><div class="pk-row wide weekend"><span class="pk-day">Fri 11 Sep</span><span class="pk-bar"><i class='new' style='width:9.5%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+4</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+2</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Sat 12 Sep</span><span class="pk-bar"><i class='new' style='width:7.1%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+3</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Sun 13 Sep</span><span class="pk-bar"><i class='new' style='width:2.4%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+1</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net neg">-1</span><span class="num pk-ctx">9,131</span><span class="num">2,403</span><span class="num">91,312</span></div><div class="pk-row wide"><span class="pk-day">Mon 14 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:2.4%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net pos">+1</span><span class="num pk-ctx">8,608</span><span class="num">2,718</span><span class="num">103,292</span></div><div class="pk-row wide"><span class="pk-day">Tue 15 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">8,935</span><span class="num">2,587</span><span class="num">98,288</span></div><div class="pk-row wide"><span class="pk-day">Wed 16 Sep</span><span class="pk-bar"><i class='new' style='width:9.5%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+4</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+2</span><span class="num pk-ctx">5,834</span><span class="num">921</span><span class="num">35,004</span></div><div class="pk-row wide"><span class="pk-day">Thu 17 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Fri 18 Sep</span><span class="pk-bar"><i class='new' style='width:4.8%'></i><i class='canc' style='width:4.8%'></i></span><span class="num"><span class="">+2</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Sat 19 Sep</span><span class="pk-bar"><i class='new' style='width:2.4%'></i><i class='canc' style='width:2.4%'></i></span><span class="num"><span class="">+1</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide weekend"><span class="pk-day">Sun 20 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">—</span><span class="num">—</span><span class="num">—</span></div><div class="pk-row wide"><span class="pk-day">Mon 21 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">2,735</span><span class="num">1,151</span><span class="num">43,755</span></div><div class="pk-row wide"><span class="pk-day">Tue 22 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">2,692</span><span class="num">1,134</span><span class="num">43,076</span></div><div class="pk-row wide"><span class="pk-day">Wed 23 Sep</span><span class="pk-bar"><i class='new' style='width:40.5%'></i></span><span class="num"><span class="">+17</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+17</span><span class="num pk-ctx">5,720</span><span class="num">4,215</span><span class="num">160,153</span></div><div class="pk-row wide"><span class="pk-day">Thu 24 Sep</span><span class="pk-bar"><i class='new' style='width:40.5%'></i></span><span class="num"><span class="">+17</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+17</span><span class="num pk-ctx">4,027</span><span class="num">2,967</span><span class="num">112,744</span></div><div class="pk-row wide weekend"><span class="pk-day">Fri 25 Sep</span><span class="pk-bar"><i class='new' style='width:40.5%'></i></span><span class="num"><span class="">+17</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+17</span><span class="num pk-ctx">4,973</span><span class="num">2,225</span><span class="num">84,537</span></div><div class="pk-row wide weekend"><span class="pk-day">Sat 26 Sep</span><span class="pk-bar"><i class='new' style='width:50.0%'></i></span><span class="num"><span class="">+21</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+21</span><span class="num pk-ctx">8,310</span><span class="num">4,592</span><span class="num">174,511</span></div><div class="pk-row wide weekend"><span class="pk-day">Sun 27 Sep</span><span class="pk-bar"><i class='new' style='width:50.0%'></i></span><span class="num"><span class="">+21</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+21</span><span class="num pk-ctx">5,144</span><span class="num">2,843</span><span class="num">108,029</span></div><div class="pk-row wide"><span class="pk-day">Mon 28 Sep</span><span class="pk-bar"><i class='new' style='width:11.9%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+5</span><span class="num pk-ctx">2,532</span><span class="num">333</span><span class="num">12,659</span></div><div class="pk-row wide"><span class="pk-day">Tue 29 Sep</span><span class="pk-bar"><i class='new' style='width:11.9%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+5</span><span class="num pk-ctx">2,430</span><span class="num">320</span><span class="num">12,150</span></div><div class="pk-row wide"><span class="pk-day">Wed 30 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">0</span><span class="num">0</span><span class="num">0</span></div><div class="pk-row total wide"><span>Total · 30 nights</span><span></span><span class="num pos">+180</span><span class="num neg">−20</span><span class="num pk-net pos">+160</span><span class="num pk-ctx">4,738</span><span class="num">1,842</span><span class="num">1,539,931</span></div></div></div><div data-panel-set="mopu" data-panel="mopu-1" hidden><div class="pk-cols"><span>Booked on</span><span></span><span>Booked</span><span>Cancelled</span><span>Net</span><span class='pk-ctx-h'>Reservations</span></div><div><div class="pk-row"><span class="pk-day">Mon 01 Sep</span><span class="pk-bar"><i class='new' style='width:4.4%'></i></span><span class="num"><span class="">+12</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+12</span><span class="num pk-ctx">5</span></div><div class="pk-row"><span class="pk-day">Tue 02 Sep</span><span class="pk-bar"><i class='new' style='width:3.3%'></i><i class='canc' style='width:0.7%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+7</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Wed 03 Sep</span><span class="pk-bar"><i class='new' style='width:5.1%'></i><i class='canc' style='width:0.4%'></i></span><span class="num"><span class="">+14</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net pos">+13</span><span class="num pk-ctx">6</span></div><div class="pk-row"><span class="pk-day">Thu 04 Sep</span><span class="pk-bar"><i class='new' style='width:2.6%'></i></span><span class="num"><span class="">+7</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+7</span><span class="num pk-ctx">3</span></div><div class="pk-row"><span class="pk-day">Mon 08 Sep</span><span class="pk-bar"><i class='new' style='width:4.0%'></i><i class='canc' style='width:1.1%'></i></span><span class="num"><span class="">+11</span></span><span class="num"><span class="">−3</span></span><span class="num pk-net pos">+8</span><span class="num pk-ctx">5</span></div><div class="pk-row"><span class="pk-day">Wed 10 Sep</span><span class="pk-bar"><i class='new' style='width:2.2%'></i><i class='canc' style='width:0.7%'></i></span><span class="num"><span class="">+6</span></span><span class="num"><span class="">−2</span></span><span class="num pk-net pos">+4</span><span class="num pk-ctx">3</span></div><div class="pk-row weekend"><span class="pk-day">Fri 12 Sep</span><span class="pk-bar"><i class='new' style='width:1.5%'></i><i class='canc' style='width:1.5%'></i></span><span class="num"><span class="">+4</span></span><span class="num"><span class="">−4</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Mon 15 Sep</span><span class="pk-bar"><i class='new' style='width:3.3%'></i><i class='canc' style='width:0.4%'></i></span><span class="num"><span class="">+9</span></span><span class="num"><span class="">−1</span></span><span class="num pk-net pos">+8</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Wed 17 Sep</span><span class="pk-bar"><i class='new' style='width:1.8%'></i></span><span class="num"><span class="">+5</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net pos">+5</span><span class="num pk-ctx">2</span></div><div class="pk-row"><span class="pk-day">Tue 22 Sep</span><span class="pk-bar"><i class='new' style='width:6.6%'></i><i class='canc' style='width:2.6%'></i></span><span class="num"><span class="">+18</span></span><span class="num"><span class="">−7</span></span><span class="num pk-net pos">+11</span><span class="num pk-ctx">4</span></div><div class="pk-row"><span class="pk-day">Wed 23 Sep</span><span class="pk-bar"><i class='new' style='width:50.0%'></i><i class='canc' style='width:9.9%'></i></span><span class="num"><span class="">+137</span></span><span class="num"><span class="">−27</span></span><span class="num pk-net pos">+110</span><span class="num pk-ctx">31</span></div><div class="pk-row"><span class="pk-day">Thu 24 Sep</span><span class="pk-bar"></span><span class="num"><span class="dot-nil">·</span></span><span class="num"><span class="dot-nil">·</span></span><span class="num pk-net ">0</span><span class="num pk-ctx">0</span></div></div></div></div>
           <p style="font-size:12px;color:var(--text2);margin:14px 0 0">Room nights booked and cancelled for each night of September, counted from the booking activity recorded on 01 Sep to 24 Sep. A night that gained five and lost five is not a night where nothing happened, which is why the bar splits.</p>
           <p style="font-size:12px;color:var(--text2);margin:8px 0 0">ADR, RevPAR and Revenue are that calendar date’s own figures from the PMS Forecast-by-Day report, so they read the same in either view. A date with no PMS reading shows a dash rather than a zero. On the Total row the counts and revenue add up, ADR is blended across the whole span (revenue ÷ room nights) and RevPAR is the mean of the nights that had a reading.</p>
         </div>
@@ -3603,25 +3710,6 @@ ref prop_20260923T195502_e8e3aa</div></div>
       </div>
 
       <section class="section" style="margin-top:0">
-        <div class="section-head"><h3>PMS snapshot</h3><div class="rule"></div>
-          <span class="hint">23 September 2026 · auto-refreshes every 5 minutes</span></div>
-        <div class="grid g4">
-          <article class="card"><span class="accent amber"></span>
-            <div class="k-label">Occupancy</div><div class="k-value num">7.89<span class="unit">%</span></div>
-            <span class="k-tag amber">3 of 38 rooms</span></article>
-          <article class="card"><span class="accent blue"></span>
-            <div class="k-label">ADR</div><div class="k-value num">฿10,136</div>
-            <span class="k-tag blue">Average daily rate</span></article>
-          <article class="card"><span class="accent violet"></span>
-            <div class="k-label">RevPAR</div><div class="k-value num">฿800</div>
-            <span class="k-tag violet">Revenue per available room</span></article>
-          <article class="card"><span class="accent rose"></span>
-            <div class="k-label">Active flags</div><div class="k-value num">5</div>
-            <span class="k-tag rose">2 critical · 3 watch</span></article>
-        </div>
-      </section>
-
-      <section class="section">
         <div class="section-head"><h3>Employee status</h3><div class="rule"></div>
           <span class="hint">Each agent reports its own last run</span></div>
         <div class="grid g3">
@@ -6651,6 +6739,7 @@ ref prop_20260923T195502_e8e3aa</div></div>
 </details>
 
 <script>
+window.RS_I18N = {"exact":{"Operate":"การทำงาน","Reports":"รายงาน","System":"ระบบ","Dashboard":"แดชบอร์ด","Annual Plan":"แผนประจำปี","Inbox":"กล่องข้อความ","Approvals":"การอนุมัติ","Rates":"อัตราค่าห้อง","Compset":"กลุ่มคู่แข่ง","Pick-up & Pace":"ยอดจองเพิ่ม & จังหวะการจอง","Weekly":"รายสัปดาห์","Monthly":"รายเดือน","Quarterly":"รายไตรมาส","In Progress":"งานที่กำลังทำ","System Health":"สถานะระบบ","Control Center":"ศูนย์ควบคุม","Connected to HotelTime":"เชื่อมต่อกับ HotelTime","All systems healthy":"ระบบทั้งหมดทำงานปกติ","Hotel manager":"ผู้จัดการโรงแรม","Live":"เรียลไทม์","Notifications":"การแจ้งเตือน","Mark all read":"ทำเครื่องหมายว่าอ่านแล้วทั้งหมด","Open notification settings":"เปิดการตั้งค่าการแจ้งเตือน","Switch theme":"สลับธีม","Open menu":"เปิดเมนู","Close":"ปิด","Back":"ย้อนกลับ","Today":"วันนี้","Month to date":"เดือนนี้ถึงปัจจุบัน","Year to date":"ปีนี้ถึงปัจจุบัน","Revenue Sentinel — live dashboard":"Revenue Sentinel — แดชบอร์ดเรียลไทม์","Combined daily performance report":"รายงานผลประกอบการประจำวันแบบรวม","Today’s PMS snapshot":"ภาพรวมจาก PMS วันนี้","PMS · Click any card for the 4-week view":"PMS · คลิกการ์ดใดก็ได้เพื่อดูมุมมอง 4 สัปดาห์","Occupancy":"อัตราการเข้าพัก","ADR — average daily rate":"ADR — ราคาห้องพักเฉลี่ย","ADR — avg daily rate":"ADR — ราคาห้องพักเฉลี่ย","RevPAR":"RevPAR","Accommodation revenue":"รายได้ค่าห้องพัก","Rooms booked":"ห้องที่จองแล้ว","Sold tonight":"ขายได้คืนนี้","↘ Low tonight":"↘ ต่ำในคืนนี้","Sold-room revenue ÷ nights":"รายได้ห้องที่ขายได้ ÷ จำนวนคืน","Revenue per available room":"รายได้ต่อห้องพักที่มีอยู่","Excl. VAT & service charge":"ไม่รวม VAT & ค่าบริการ","Click · 4-week view ↗":"คลิก · มุมมอง 4 สัปดาห์ ↗","Detail view ↗":"ดูรายละเอียด ↗","Expand ↗":"ขยาย ↗","Table ↗":"ตาราง ↗","New bookings & cancellations":"การจองใหม่ & การยกเลิก","Created today · Click a card with ↗ for detail":"สร้างวันนี้ · คลิกการ์ดที่มี ↗ เพื่อดูรายละเอียด","New reservations":"การจองใหม่","Reserved rooms":"ห้องที่ถูกจอง","Booked guests today":"ผู้เข้าพักที่จองวันนี้","Gained / lost room nights":"คืนห้องพักที่ได้ / เสีย","Cancellations":"การยกเลิก","Cancelled nights":"คืนที่ถูกยกเลิก","Cancelled room reservations":"การจองห้องที่ถูกยกเลิก","Gained / lost revenue":"รายได้ที่ได้ / เสีย","New vs cancelled RN":"จองใหม่เทียบกับที่ยกเลิก (คืนห้อง)","New vs cancelled revenue":"รายได้จองใหม่เทียบกับที่ยกเลิก","Room nights lost":"คืนห้องพักที่เสียไป","Pick-up trends":"แนวโน้มยอดจองเพิ่ม","Weekly · 7-day booking velocity · Click a row for the breakdown":"รายสัปดาห์ · ความเร็วการจอง 7 วัน · คลิกแถวเพื่อดูรายละเอียด","Stay month":"เดือนที่เข้าพัก","OTB rooms on the books":"ห้องที่มีในระบบ","OTB revenue room revenue THB":"รายได้ในระบบ รายได้ค่าห้อง THB","LY OTB last year":"ปีก่อน (ในระบบ)","LY revenue last year THB":"รายได้ปีก่อน THB","ADR diff vs last year":"ผลต่าง ADR เทียบปีก่อน","Today’s room-type bookings":"การจองตามประเภทห้องวันนี้","Today’s new bookings · Click a chart for the highlights":"การจองใหม่วันนี้ · คลิกกราฟเพื่อดูประเด็นสำคัญ","Room-type booking mix % — today":"สัดส่วนการจองตามประเภทห้อง % — วันนี้","Highlights":"ประเด็นสำคัญ","Agents & segments":"ตัวแทน & เซกเมนต์","Revenue Sentinel intelligence":"ข้อมูลเชิงลึกจาก Revenue Sentinel","Working for you around the clock":"ทำงานให้คุณตลอด 24 ชั่วโมง","Time Sentinel worked":"เวลาที่ Sentinel ทำงาน","Data points collected":"จุดข้อมูลที่เก็บได้","Reports generated":"รายงานที่สร้าง","Compset checks":"การตรวจสอบคู่แข่ง","Rate adjustments":"การปรับอัตราค่าห้อง","Last run status":"สถานะการทำงานล่าสุด","Design preview · not connected to a PMS":"ตัวอย่างงานออกแบบ · ไม่ได้เชื่อมต่อกับ PMS","What makes it up":"องค์ประกอบ","What drove it":"อะไรเป็นตัวขับเคลื่อน","Detail":"รายละเอียด","Reference":"เลขอ้างอิง","Room type":"ประเภทห้อง","Stay dates":"วันที่เข้าพัก","Room nights":"คืนห้องพัก","Booked value":"มูลค่าที่จอง","Value removed":"มูลค่าที่หายไป","Guest name":"ชื่อผู้เข้าพัก","Adults":"ผู้ใหญ่","Children":"เด็ก","Arrival":"วันที่เข้าพัก","Reason":"เหตุผล","Rooms":"ห้อง","Name":"ชื่อ","Change":"เปลี่ยนแปลง","Values exclude VAT & service charge":"มูลค่าไม่รวม VAT & ค่าบริการ","Excludes VAT & service charge · future bookings may change":"ไม่รวม VAT & ค่าบริการ · การจองในอนาคตอาจเปลี่ยนแปลงได้","Daily forecast · weekends highlighted":"พยากรณ์รายวัน · เน้นวันสุดสัปดาห์","Midweek · on the books":"กลางสัปดาห์ · ในระบบ","Weekend · on the books":"สุดสัปดาห์ · ในระบบ","Target":"เป้าหมาย","Target marker":"เส้นเป้าหมาย","Weekend":"สุดสัปดาห์","Recorded night":"คืนที่บันทึกไว้","Day by day":"รายวัน","Day":"วัน","Occ %":"เข้าพัก %","Built from the daily snapshots Employee 1 records each night.":"สร้างจากข้อมูลรายวันที่ Employee 1 บันทึกไว้ทุกคืน","Room nights are counted on the stay date, not the booking date.":"คืนห้องพักนับตามวันที่เข้าพัก ไม่ใช่วันที่จอง","Room nights are counted on the stay date.":"คืนห้องพักนับตามวันที่เข้าพัก","Booked room nights":"คืนห้องพักที่จอง","Booked room nights · counted on the stay date":"คืนห้องพักที่จอง · นับตามวันที่เข้าพัก","Agent":"ตัวแทน","Segment":"เซกเมนต์","Bookings":"จำนวนการจอง","Share":"สัดส่วน","Channel":"ช่องทาง","Metric":"ตัวชี้วัด","This year":"ปีนี้","Last year":"ปีก่อน","Note":"หมายเหตุ","Source":"แหล่งข้อมูล","Targets · actuals · forward bookings":"เป้าหมาย · ผลจริง · การจองล่วงหน้า","Annual revenue target":"เป้าหมายรายได้ประจำปี","Are we on plan?":"เราเป็นไปตามแผนหรือไม่","Complete months only — the like-for-like read":"เฉพาะเดือนที่จบแล้ว — การเทียบแบบเดียวกัน","By quarter":"ตามไตรมาส","Revenue secured against the quarter’s own target":"รายได้ที่ได้มาเทียบกับเป้าหมายของไตรมาสนั้น","Month by month":"รายเดือน","Revenue vs target":"รายได้เทียบเป้าหมาย","Occ vs target":"เข้าพักเทียบเป้าหมาย","Position":"สถานะ","Month":"เดือน","Revenue":"รายได้","Realized":"รับรู้แล้ว","Realized — earned":"รับรู้แล้ว — รายได้จริง","In progress":"กำลังดำเนินการ","In progress — this month":"กำลังดำเนินการ — เดือนนี้","On the books":"ในระบบ","On the books — future":"ในระบบ — อนาคต","Still to sell":"ยังต้องขาย","What Revenue Sentinel did":"สิ่งที่ Revenue Sentinel ทำ","Counts from the rate-write audit trail":"นับจากบันทึกการเขียนอัตราค่าห้อง","Rates written":"อัตราที่เขียนแล้ว","Stay dates repriced":"วันที่เข้าพักที่ปรับราคา","Individual rates set":"อัตราที่ตั้งรายรายการ","Days priced ahead":"จำนวนวันที่ตั้งราคาล่วงหน้า","Days on watch":"จำนวนวันที่เฝ้าติดตาม","Operator time saved":"เวลาที่ประหยัดให้ผู้ปฏิบัติงาน","Revenue for a month that has not finished is booked, not earned.":"รายได้ของเดือนที่ยังไม่จบคือยอดจอง ไม่ใช่รายได้ที่รับรู้แล้ว","WhatsApp thread":"บทสนทนา WhatsApp","Messages":"ข้อความ","Search this conversation":"ค้นหาในบทสนทนานี้","Search proposals, dates or messages…":"ค้นหาข้อเสนอ วันที่ หรือข้อความ…","Conversation":"บทสนทนา","Read message ↓":"อ่านข้อความ ↓","All":"ทั้งหมด","Received":"ได้รับ","Sent":"ส่งแล้ว","Briefing":"สรุปประจำวัน","Confirmation":"การยืนยัน","Rejection":"การปฏิเสธ","received":"ได้รับ","sent":"ส่งแล้ว","Cut-off":"เวลาปิดรับ","Within rate floor":"อยู่ในขอบเขตราคาขั้นต่ำ","Applies to HotelTime PMS":"มีผลกับ HotelTime PMS","Next 14 days":"14 วันข้างหน้า","6-month plan":"แผน 6 เดือน","Room-type scope":"ขอบเขตประเภทห้อง","All OK":"ตกลงทั้งหมด","All NO":"ปฏิเสธทั้งหมด","Confirm and write":"ยืนยันและบันทึก","Dates to be written":"วันที่จะถูกบันทึก","Current":"ปัจจุบัน","Proposed":"ที่เสนอ","Decision":"การตัดสินใจ","Scope":"ขอบเขต","Why this rate":"ทำไมถึงเป็นอัตรานี้","Rate floor":"ราคาขั้นต่ำ","Within":"อยู่ในเกณฑ์","Market position":"สถานะเทียบตลาด","Days out":"จำนวนวันล่วงหน้า","from today":"จากวันนี้","among the compset":"ในกลุ่มคู่แข่ง","Rank":"อันดับ","Rate by room type if accepted":"อัตราตามประเภทห้องหากยอมรับ","How a proposal is bounded":"ข้อเสนอถูกกำหนดขอบเขตอย่างไร","Rate floor, market band and the demand signal":"ราคาขั้นต่ำ ช่วงราคาตลาด และสัญญาณอุปสงค์","A lower suggested rate is a pricing action, not automatically a loss.":"อัตราที่เสนอต่ำลงคือการปรับราคา ไม่ได้แปลว่าขาดทุนเสมอไป","Market position scale":"ระดับสถานะเทียบตลาด","significantly underpriced":"ต่ำกว่าตลาดมาก","underpriced":"ต่ำกว่าตลาด","at market":"เท่าตลาด","premium":"สูงกว่าตลาด","significantly premium":"สูงกว่าตลาดมาก","well under":"ต่ำมาก","under":"ต่ำกว่า","well over":"สูงมาก","Forward calendar":"ปฏิทินล่วงหน้า","Competitor band":"ช่วงราคาคู่แข่ง","Room types on this date":"ประเภทห้องในวันนี้","Code":"รหัส","Rate":"อัตรา","Multiplier":"ตัวคูณ","Live channel":"ช่องทางที่เปิดขายจริง","6-month plan ":"แผน 6 เดือน ","Our rate":"อัตราของเรา","Compset median":"ค่ามัธยฐานคู่แข่ง","Our rate vs the compset median":"อัตราของเราเทียบค่ามัธยฐานคู่แข่ง","Our rate vs compset median":"อัตราของเราเทียบค่ามัธยฐานคู่แข่ง","Our rate vs compset median (nightly)":"อัตราของเราเทียบค่ามัธยฐานคู่แข่ง (รายคืน)","Our rate vs the compset median, nightly":"อัตราของเราเทียบค่ามัธยฐานคู่แข่ง รายคืน","Rates · 14d":"อัตรา · 14 วัน","Trend":"แนวโน้ม","Spikes & drops":"ราคาพุ่ง & ราคาตก","Rates · next 14 days":"อัตรา · 14 วันข้างหน้า","Lowest OTA rate per competitor · click a row for the full band":"อัตรา OTA ต่ำสุดของแต่ละคู่แข่ง · คลิกแถวเพื่อดูช่วงราคาทั้งหมด","Date":"วันที่","Us":"เรา","Compset movement · next 180 days":"ความเคลื่อนไหวของคู่แข่ง · 180 วันข้างหน้า","Spikes":"ราคาพุ่ง","Drops":"ราคาตก","Raises":"ปรับขึ้น","Reductions":"ปรับลด","Vs pattern":"เทียบรูปแบบปกติ","Compset avg":"ค่าเฉลี่ยคู่แข่ง","Baseline":"ค่าฐาน","Competitor":"คู่แข่ง","Peak vs pattern":"จุดสูงสุดเทียบรูปแบบปกติ","Avg rate":"อัตราเฉลี่ย","Individual competitors · next 60 days":"คู่แข่งรายราย · 60 วันข้างหน้า","Peak departure from that property’s own pattern":"ค่าเบี่ยงเบนสูงสุดจากรูปแบบปกติของโรงแรมนั้น","Daily median of competitor lowest rates":"ค่ามัธยฐานรายวันของอัตราต่ำสุดของคู่แข่ง","Next 14 days · daily median of competitor lowest rates":"14 วันข้างหน้า · ค่ามัธยฐานรายวันของอัตราต่ำสุดของคู่แข่ง","Pace & pick-up trends":"จังหวะการจอง & แนวโน้มยอดจองเพิ่ม","The story":"สรุปสถานการณ์","Plain-English summary":"สรุปแบบเข้าใจง่าย","Daily pick-up — 14 days":"ยอดจองเพิ่มรายวัน — 14 วัน","Movements in the last 24 hours":"ความเคลื่อนไหวใน 24 ชั่วโมงที่ผ่านมา","Last 48h pick-up — 1 month":"ยอดจองเพิ่ม 48 ชม. — 1 เดือน","Movements in the last 48 hours":"ความเคลื่อนไหวใน 48 ชั่วโมงที่ผ่านมา","Last 7d pick-up — 3 months":"ยอดจองเพิ่ม 7 วัน — 3 เดือน","Movements in the last 7 days · one row per stay month":"ความเคลื่อนไหวใน 7 วันที่ผ่านมา · หนึ่งแถวต่อหนึ่งเดือนที่เข้าพัก","On the books vs last year":"ยอดในระบบเทียบปีก่อน","Rooms per stay month · this year beside last":"ห้องต่อเดือนที่เข้าพัก · ปีนี้เทียบปีก่อน","this year":"ปีนี้","last year":"ปีก่อน","Pace scorecard":"สรุปจังหวะการจอง","Next 6 months · status at a glance · bar marker is last year’s occupancy":"6 เดือนข้างหน้า · ดูสถานะโดยรวม · เส้นบนแถบคืออัตราเข้าพักปีก่อน","Net pick-up 7d":"ยอดจองสุทธิ 7 วัน","ADR vs LY":"ADR เทียบปีก่อน","Revenue vs LY":"รายได้เทียบปีก่อน","Pacing OK":"จังหวะปกติ","Pacing strong":"จังหวะแข็งแกร่ง","Behind last year":"ช้ากว่าปีก่อน","Revenue composition":"องค์ประกอบรายได้","Where the money comes from · by channel bucket":"รายได้มาจากไหน · แยกตามกลุ่มช่องทาง","Channel health":"สุขภาพช่องทางการขาย","Top segments & rate flags · next 3 months":"เซกเมนต์หลัก & สัญญาณราคา · 3 เดือนข้างหน้า","Revenue Sentinel briefing":"สรุปจาก Revenue Sentinel","The signals behind this report":"สัญญาณที่อยู่เบื้องหลังรายงานนี้","What Revenue Sentinel is watching":"สิ่งที่ Revenue Sentinel กำลังเฝ้าดู","Auto-refreshed at :17 every hour":"รีเฟรชอัตโนมัติที่นาทีที่ 17 ของทุกชั่วโมง","booked":"จองแล้ว","cancelled":"ยกเลิก","by stay date":"ตามวันที่เข้าพัก","by day it was done":"ตามวันที่ทำรายการ","By stay date":"ตามวันที่เข้าพัก","Booked on":"วันที่ทำรายการ","Booked":"จองแล้ว","Cancelled":"ยกเลิก","Net":"สุทธิ","On books":"ในระบบ","Reservations":"การจอง","Night":"คืน","Revenue Sentinel · weekly":"Revenue Sentinel · รายสัปดาห์","Revenue Sentinel · monthly":"Revenue Sentinel · รายเดือน","Revenue Sentinel · quarterly":"Revenue Sentinel · รายไตรมาส","Weekly scoreboard":"สรุปผลรายสัปดาห์","Monthly scoreboard":"สรุปผลรายเดือน","Monthly scoreboards":"สรุปผลรายเดือน","Pick-up of the week":"ยอดจองเพิ่มของสัปดาห์","Pick-up of the month":"ยอดจองเพิ่มของเดือน","Pace outlook":"แนวโน้มจังหวะการจอง","Rooms on the books vs budgeted target, by night":"ห้องในระบบเทียบเป้าหมายงบประมาณ รายคืน","On the books vs budget target":"ยอดในระบบเทียบเป้าหมายงบประมาณ","Budget target":"เป้าหมายงบประมาณ","Pace retrospective":"ย้อนดูจังหวะการจอง","How the month filled up, day by day":"เดือนนี้เต็มขึ้นอย่างไร วันต่อวัน","Each point is one day’s count of rooms already sold for this month":"แต่ละจุดคือจำนวนห้องที่ขายได้สำหรับเดือนนี้ ณ วันนั้น","Rooms on the books":"ห้องในระบบ","Date counted":"วันที่นับ","One row per evening count":"หนึ่งแถวต่อการนับหนึ่งเย็น","One row per night of the week":"หนึ่งแถวต่อหนึ่งคืนของสัปดาห์","One row per night of September":"หนึ่งแถวต่อหนึ่งคืนของเดือนกันยายน","State":"สถานะ","closed":"ปิดแล้ว","on the books":"ในระบบ","Booking window · average lead time · ALOS":"ช่วงเวลาการจอง · ระยะเวลาจองล่วงหน้าเฉลี่ย · ALOS","Reservations arriving this month":"การจองที่เข้าพักเดือนนี้","Average lead time":"ระยะเวลาจองล่วงหน้าเฉลี่ย","booking → arrival":"จองถึงวันเข้าพัก","Booking lead time — reservations by days before arrival":"ระยะเวลาจองล่วงหน้า — จำนวนการจองตามวันก่อนเข้าพัก","Reservations by days before arrival":"จำนวนการจองตามวันก่อนเข้าพัก","Lead-time band (days)":"ช่วงระยะเวลาจองล่วงหน้า (วัน)","Average length of stay by room type":"จำนวนคืนเข้าพักเฉลี่ยตามประเภทห้อง","ALOS nights":"ALOS (คืน)","Compset — the week":"คู่แข่ง — สัปดาห์นี้","Compset — the month":"คู่แข่ง — เดือนนี้","Median of the competitors returning a rate that night":"ค่ามัธยฐานของคู่แข่งที่มีอัตราในคืนนั้น","Nightly · median of the competitors returning a rate":"รายคืน · ค่ามัธยฐานของคู่แข่งที่มีอัตรา","Gap":"ส่วนต่าง","Basis":"ที่มา","Revenue Sentinel’s debrief and next steps":"บทสรุปและขั้นตอนถัดไปจาก Revenue Sentinel","Not yet written":"ยังไม่ได้เขียน","Month in review":"ภาพรวมของเดือน","Segment & channel mix":"สัดส่วนเซกเมนต์ & ช่องทาง","Channel & segment mix":"สัดส่วนช่องทาง & เซกเมนต์","Share of room nights · arrivals this month":"สัดส่วนคืนห้องพัก · ผู้เข้าพักเดือนนี้","Channel mix — where the bookings came from":"สัดส่วนช่องทาง — การจองมาจากไหน","Segment mix — what kind of business":"สัดส่วนเซกเมนต์ — เป็นธุรกิจประเภทใด","A long tail of one-booking channels is folded into “Other”.":"ช่องทางที่มีเพียงการจองเดียวจะถูกรวมไว้ใน “อื่น ๆ”","Destination news":"ข่าวสารปลายทาง","Fetched items":"รายการที่ดึงมา","Budget pace & next-month target":"จังหวะเทียบงบประมาณ & เป้าหมายเดือนหน้า","From config/budget.json":"จาก config/budget.json","Against the month’s budget":"เทียบงบประมาณของเดือน","Pace against budget · as at 08 Sep":"จังหวะเทียบงบประมาณ · ณ 8 ก.ย.","PMS so far":"PMS ถึงปัจจุบัน","Month target":"เป้าหมายของเดือน","Action plan":"แผนปฏิบัติการ","Rules engine [Q]":"เอนจินกฎเกณฑ์ [Q]","high":"สูง","Quarter plan":"แผนไตรมาส","Quarter revenue target":"เป้าหมายรายได้ไตรมาส","Against target":"เทียบเป้าหมาย","Revenue vs the month’s budget · ⓘ opens the month in words":"รายได้เทียบงบประมาณของเดือน · ⓘ เปิดคำอธิบายของเดือนนั้น","The month in words ↗":"คำอธิบายของเดือนนี้ ↗","This year beside the same month last year":"ปีนี้เทียบกับเดือนเดียวกันของปีก่อน","Quarter review by Revenue Sentinel":"บทวิเคราะห์ไตรมาสโดย Revenue Sentinel","Quarter review":"บทวิเคราะห์ไตรมาส","The big picture · Claude prose (cached)":"ภาพรวม · ข้อความจาก Claude (แคชไว้)","The month so far · Qwen prose over computed figures":"เดือนนี้ถึงปัจจุบัน · ข้อความจาก Qwen บนตัวเลขที่คำนวณแล้ว","computed figures":"ตัวเลขที่คำนวณแล้ว","Claude prose · cached":"ข้อความจาก Claude · แคชไว้","Counted from the work it left behind":"นับจากร่องรอยการทำงานที่ทิ้งไว้","Hours worked":"ชั่วโมงที่ทำงาน","Days on duty":"วันที่ปฏิบัติงาน","Readings taken":"จำนวนครั้งที่อ่านค่า","competitor rate checks":"ครั้งที่ตรวจอัตราคู่แข่ง","rate proposals sent":"ข้อเสนออัตราที่ส่ง","six-month rate plans":"แผนอัตรา 6 เดือน","days the market was surveyed":"วันที่สำรวจตลาด","briefings sent":"สรุปที่ส่ง","decisions processed":"การตัดสินใจที่ประมวลผล","report builds":"จำนวนครั้งที่สร้างรายงาน","data points collected":"จุดข้อมูลที่เก็บได้","mean of recorded days":"ค่าเฉลี่ยของวันที่บันทึกไว้","blended: revenue ÷ roomnights":"แบบผสม: รายได้ ÷ คืนห้องพัก","rev per available room":"รายได้ต่อห้องที่มีอยู่","excl. SVC & VAT":"ไม่รวมค่าบริการ & VAT","realized":"รับรู้แล้ว","in progress":"กำลังดำเนินการ","Best date":"วันที่ดีที่สุด","Booked ADR":"ADR ที่จองแล้ว","Weekend premium":"ส่วนเพิ่มสุดสัปดาห์","Rooms sold tonight":"ห้องที่ขายได้คืนนี้","Capacity 38 rooms":"ความจุ 38 ห้อง","Peak":"สูงสุด","Running now":"กำลังทำงานอยู่","Runs":"จำนวนครั้ง","Job":"งาน","Started":"เริ่ม","Ended":"สิ้นสุด","Duration":"ระยะเวลา","Last":"ล่าสุด","All scheduled jobs":"งานตามตารางทั้งหมด","Across all job types":"ทุกประเภทงาน","Median run":"ค่ามัธยฐานการทำงาน","Employee status":"สถานะเอเจนต์","Each agent reports its own last run":"เอเจนต์แต่ละตัวรายงานการทำงานล่าสุดของตัวเอง","Active flags":"สัญญาณเตือนที่เปิดอยู่","Raised by the Rate Comparator · click a flag for the reasoning":"แจ้งโดย Rate Comparator · คลิกเพื่อดูเหตุผล","Job success rate":"อัตราความสำเร็จของงาน","Last 28 days · share of scheduled runs that completed":"28 วันล่าสุด · สัดส่วนงานตามตารางที่ทำสำเร็จ","critical":"วิกฤต","watch":"เฝ้าระวัง","Why ↗":"เหตุผล ↗","Preview controls":"ตัวควบคุมสำหรับตัวอย่าง","Notification centre":"ศูนย์การแจ้งเตือน","Pop-up · confirmation":"ป๊อปอัป · การยืนยัน","Pop-up · needs review":"ป๊อปอัป · ต้องตรวจสอบ","Pop-up · critical":"ป๊อปอัป · วิกฤต","Pop-up · information":"ป๊อปอัป · ข้อมูล","Needs your review":"ต้องการการตรวจสอบจากคุณ","7 rate decisions ready for you":"มีการตัดสินใจเรื่องอัตราค่าห้อง 7 รายการรอคุณอยู่","Five increases and two reductions. Confirm by :45 this hour.":"ปรับขึ้น 5 รายการ ปรับลด 2 รายการ · ยืนยันภายในนาทีที่ 45 ของชั่วโมงนี้","Review proposals":"ตรวจสอบข้อเสนอ","OTB rooms":"ห้องในระบบ","OTB revenue":"รายได้ในระบบ","room revenue THB":"รายได้ค่าห้อง THB","LY OTB":"ในระบบปีก่อน","LY revenue":"รายได้ปีก่อน","last year THB":"ปีก่อน THB","ADR diff":"ผลต่าง ADR","7-day pick-up":"ยอดจองเพิ่ม 7 วัน","Leading type":"ประเภทที่จองมากที่สุด","Types booked":"ประเภทที่มีการจอง","Unsold today":"ยังไม่ขายวันนี้","Highest ARR":"ARR สูงสุด","Lowest ARR":"ARR ต่ำสุด","Weighted ADR":"ADR ถ่วงน้ำหนัก","≈ 0.8 manual hours saved":"≈ ประหยัดแรงงานคน 0.8 ชั่วโมง","PMS snapshot":"ภาพรวมจาก PMS","New bookings":"การจองใหม่","Segments":"เซกเมนต์","Pick-up data":"ข้อมูลยอดจองเพิ่ม","SECURED":"ได้มาแล้ว","OF TARGET SECURED":"ของเป้าหมายที่ได้มาแล้ว","Net booked revenue":"รายได้ที่จองสุทธิ","New room nights":"คืนห้องพักใหม่","Cancelled room nights":"คืนห้องพักที่ยกเลิก","Net room nights":"คืนห้องพักสุทธิ","Open pickup details ↗":"ดูรายละเอียดยอดจองเพิ่ม ↗","Realized — earned, months complete":"รับรู้แล้ว — รายได้จริง เดือนที่จบแล้ว","On the books — future months":"ในระบบ — เดือนในอนาคต","Q1 · JFM":"ไตรมาส 1 · ม.ค.–มี.ค.","Q2 · AMJ":"ไตรมาส 2 · เม.ย.–มิ.ย.","Q3 · JAS":"ไตรมาส 3 · ก.ค.–ก.ย.","Q4 · OND":"ไตรมาส 4 · ต.ค.–ธ.ค.","across 5 room types":"ครอบคลุม 5 ประเภทห้อง","forward plan maintained daily":"ดูแลแผนล่วงหน้าทุกวัน","assumes 2 min per manual update":"คิดที่ 2 นาทีต่อการแก้ไขด้วยมือหนึ่งครั้ง","Targets from the annual budget":"เป้าหมายจากงบประมาณประจำปี","Actuals from PMS monthly statistics":"ผลจริงจากสถิติรายเดือนของ PMS","Cut-off 20:45":"ปิดรับ 20:45","Confirm by 20:45 ICT":"ยืนยันภายใน 20:45 ICT","Review the final dates and rates before submitting.":"ตรวจสอบวันที่และอัตราครั้งสุดท้ายก่อนส่ง","Significantly premium against the market.":"สูงกว่าตลาดอย่างมาก","Underpriced — the compset moved up overnight.":"ต่ำกว่าตลาด — คู่แข่งปรับขึ้นเมื่อคืน","Underpriced for a midweek convention date.":"ต่ำกว่าตลาดสำหรับวันประชุมกลางสัปดาห์","Underpriced — weekend demand is building.":"ต่ำกว่าตลาด — อุปสงค์สุดสัปดาห์กำลังเพิ่มขึ้น","Underpriced against a rising compset.":"ต่ำกว่าตลาดขณะที่คู่แข่งกำลังปรับขึ้น","Underpriced — pick-up is strengthening.":"ต่ำกว่าตลาด — ยอดจองเพิ่มกำลังแข็งแรงขึ้น","Underpriced against the market average.":"ต่ำกว่าค่าเฉลี่ยตลาด","Underpriced — two competitors raised today.":"ต่ำกว่าตลาด — คู่แข่งสองรายปรับขึ้นวันนี้","Seasonal pattern and compset both point higher.":"ทั้งรูปแบบตามฤดูกาลและคู่แข่งชี้ไปทางสูงขึ้น","Shoulder date — modest lift within the floor.":"ช่วงรอยต่อฤดูกาล — ปรับขึ้นเล็กน้อยในกรอบราคาขั้นต่ำ","Loy Krathong weekend — compset already moved.":"สุดสัปดาห์ลอยกระทง — คู่แข่งปรับไปแล้ว","Festival tail-off but still above pattern.":"ช่วงท้ายเทศกาล แต่ยังสูงกว่ารูปแบบปกติ","Above pattern with no demand signal behind it.":"สูงกว่ารูปแบบปกติโดยไม่มีสัญญาณอุปสงค์รองรับ","input [A] — pending":"อินพุต [A] — รอข้อมูล","Design preview · not connected to WhatsApp":"ตัวอย่างงานออกแบบ · ไม่ได้เชื่อมต่อกับ WhatsApp","Horizon approval recorded":"บันทึกการอนุมัติล่วงหน้าแล้ว","Rate proposal ready":"ข้อเสนออัตราค่าห้องพร้อมแล้ว","Three stay dates on BAR2026 need your review before 10:43 ICT.":"วันที่เข้าพัก 3 วันของ BAR2026 ต้องการการตรวจสอบก่อน 10:43 ICT","Rates applied to HotelTime":"บันทึกอัตราค่าห้องลง HotelTime แล้ว","Competitor movement":"ความเคลื่อนไหวของคู่แข่ง","Pick-up surge":"ยอดจองเพิ่มพุ่งขึ้น","Rate below market":"อัตราต่ำกว่าตลาด","Rate applied":"บันทึกอัตราแล้ว","7 proposals need review":"ข้อเสนอ 7 รายการต้องการการตรวจสอบ","Competitor feed stale":"ข้อมูลคู่แข่งไม่อัปเดต","Weekly report ready":"รายงานรายสัปดาห์พร้อมแล้ว","Rate changes queued":"จัดคิวการเปลี่ยนอัตราแล้ว","Open approvals":"เปิดหน้าการอนุมัติ","System health":"สถานะระบบ","Open report":"เปิดรายงาน","View rate":"ดูอัตรา","Just now":"เมื่อสักครู่","Design preview · no live write path":"ตัวอย่างงานออกแบบ · ไม่มีการเขียนข้อมูลจริง","Design preview · no write path to the channel":"ตัวอย่างงานออกแบบ · ไม่เขียนข้อมูลไปยังช่องทางขาย","Design preview · not connected to a rate feed":"ตัวอย่างงานออกแบบ · ไม่ได้เชื่อมต่อกับฟีดอัตราค่าห้อง","Design preview · not connected to the job log":"ตัวอย่างงานออกแบบ · ไม่ได้เชื่อมต่อกับบันทึกงาน","Auto-refresh every 15 minutes":"รีเฟรชอัตโนมัติทุก 15 นาที","Refreshes every 5 minutes":"รีเฟรชทุก 5 นาที","Total · 30 nights":"รวม · 30 คืน","Runs · last 12 h":"จำนวนครั้ง · 12 ชม. ล่าสุด","Longest run · 12 h":"ทำงานนานที่สุด · 12 ชม.","Jobs · last 12 hours":"งาน · 12 ชั่วโมงล่าสุด","Slowest runs · last 12 h":"งานที่ช้าที่สุด · 12 ชม. ล่าสุด","System clean-up · last 12 h":"การล้างระบบ · 12 ชม. ล่าสุด","Newest first · showing 25 of 2,287":"ใหม่สุดก่อน · แสดง 25 จาก 2,287","running…":"กำลังทำงาน…","Live at 23 Sep 2026 19:54":"ข้อมูลสด ณ 23 ก.ย. 2026 19:54","7 rate decisions ready":"มีการตัดสินใจเรื่องอัตรา 7 รายการ","3 rate decisions ready":"มีการตัดสินใจเรื่องอัตรา 3 รายการ","Confirm by :45 this hour — after that a fresh proposal replaces this one.":"ยืนยันภายในนาทีที่ 45 ของชั่วโมงนี้ — หลังจากนั้นข้อเสนอใหม่จะมาแทน","Pick-up snapshot complete":"บันทึกภาพยอดจองเพิ่มเรียบร้อย","Sources · Blocking input [A]":"แหล่งข้อมูล · รออินพุต [A]","Sources · Written once the week is in its final day":"แหล่งข้อมูล · เขียนเมื่อถึงวันสุดท้ายของสัปดาห์","Sources · Written once the month is in its final day":"แหล่งข้อมูล · เขียนเมื่อถึงวันสุดท้ายของเดือน","Occupancy 42.1% (mean of daily snapshots)":"อัตราการเข้าพัก 42.1% (ค่าเฉลี่ยจากข้อมูลรายวัน)","prices read across the compset":"ราคาที่อ่านจากกลุ่มคู่แข่ง","the long horizon, re-cut":"แผนระยะยาว ปรับใหม่","a full compset sweep each time":"กวาดข้อมูลคู่แข่งครบทุกครั้ง","what needed your attention":"สิ่งที่ต้องการความสนใจจากคุณ","your approvals and rejections":"การอนุมัติและการปฏิเสธของคุณ","each one rebuilt as data arrives":"สร้างใหม่ทุกครั้งที่มีข้อมูลเข้ามา","rates, rooms, reservations":"อัตรา ห้องพัก การจอง","14-day pricing, for approval":"การตั้งราคา 14 วัน เพื่อขออนุมัติ","7 decisions waiting":"มี 7 รายการรอการตัดสินใจ","Review, adjust, then confirm. Each row explains the reason, the current and proposed rate and the market position behind it.":"ตรวจสอบ ปรับแก้ แล้วยืนยัน แต่ละแถวอธิบายเหตุผล อัตราปัจจุบันและที่เสนอ พร้อมสถานะเทียบตลาดที่อยู่เบื้องหลัง","After the cut-off a fresh proposal replaces this one. Unmentioned dates are auto-approved at the proposed rate.":"หลังเวลาปิดรับ ข้อเสนอใหม่จะมาแทนรายการนี้ วันที่ไม่ได้ระบุจะถูกอนุมัติอัตโนมัติตามอัตราที่เสนอ","Part-months and forward bookings are excluded here on purpose; including them would flatter the number.":"เดือนที่ยังไม่จบและการจองล่วงหน้าถูกตัดออกโดยตั้งใจ หากรวมเข้ามาตัวเลขจะดูดีเกินจริง","Dates where the compset average departs from its own seasonal pattern":"วันที่ค่าเฉลี่ยคู่แข่งเบี่ยงจากรูปแบบตามฤดูกาลของตัวเอง","Target = the week’s budgeted occupancy, pro-rated flat per day":"เป้าหมาย = อัตราเข้าพักตามงบประมาณของสัปดาห์ เฉลี่ยเท่ากันรายวัน","Target = the month’s budgeted occupancy, pro-rated flat per day":"เป้าหมาย = อัตราเข้าพักตามงบประมาณของเดือน เฉลี่ยเท่ากันรายวัน","Targets from your annual budget · actuals from the PMS monthly statistics":"เป้าหมายจากงบประมาณประจำปีของคุณ · ผลจริงจากสถิติรายเดือนของ PMS","Start and end times come from the system’s scheduled-job log. Only run timing is recorded, not the result of each run — for outcomes see System Health.":"เวลาเริ่มและสิ้นสุดมาจากบันทึกงานตามตารางของระบบ บันทึกเฉพาะเวลาการทำงาน ไม่ได้บันทึกผลลัพธ์ของแต่ละครั้ง — ดูผลลัพธ์ได้ที่สถานะระบบ","Session refresh took a full JWT round-trip.":"การรีเฟรชเซสชันใช้เวลาเต็มรอบ JWT","Same pattern half an hour earlier.":"รูปแบบเดียวกันเมื่อครึ่งชั่วโมงก่อน","Waited on the compset fetch to finish.":"รอการดึงข้อมูลคู่แข่งให้เสร็จ","Dashboard rebuilt":"สร้างแดชบอร์ดใหม่แล้ว","6-month forward pace":"จังหวะการจองล่วงหน้า 6 เดือน","market average":"ค่าเฉลี่ยตลาด"},"parts":[["January","มกราคม"],["February","กุมภาพันธ์"],["March","มีนาคม"],["April","เมษายน"],["June","มิถุนายน"],["July","กรกฎาคม"],["August","สิงหาคม"],["September","กันยายน"],["October","ตุลาคม"],["November","พฤศจิกายน"],["December","ธันวาคม"],["Jan","ม.ค."],["Feb","ก.พ."],["Mar","มี.ค."],["Apr","เม.ย."],["Jun","มิ.ย."],["Jul","ก.ค."],["Aug","ส.ค."],["Sep","ก.ย."],["Oct","ต.ค."],["Nov","พ.ย."],["Dec","ธ.ค."],["Monday","จันทร์"],["Tuesday","อังคาร"],["Wednesday","พุธ"],["Thursday","พฤหัสบดี"],["Friday","ศุกร์"],["Saturday","เสาร์"],["Sunday","อาทิตย์"],["Mon","จ."],["Tue","อ."],["Wed","พ."],["Thu","พฤ."],["Fri","ศ."],["Sat","ส."],["Sun","อา."],["Manager partially confirmed","ผู้จัดการยืนยันบางส่วน"],["Manager confirmed","ผู้จัดการยืนยัน"],["Manager rejected","ผู้จัดการปฏิเสธ"],["14-day proposal","ข้อเสนอ 14 วัน"],["6M proposal","ข้อเสนอ 6 เดือน"],["6M applied","บันทึกแผน 6 เดือนแล้ว"],["Morning briefing","สรุปประจำเช้า"],["rate(s)","อัตรา"],["date(s)","วันที่"],["change(s)","รายการ"],["Submit","ส่ง"],["changes","รายการ"],["Confirm by","ยืนยันภายใน"],["Click · compare with","คลิก · เทียบกับ"],["earned against","รับรู้แล้วเทียบกับ"],["targeted","ตามเป้าหมาย"],["behind plan","ช้ากว่าแผน"],["target","เป้าหมาย"],["against","เทียบกับ"],["vs market average","เทียบค่าเฉลี่ยตลาด"],["vs the compset median","เทียบค่ามัธยฐานคู่แข่ง"],["vs compset median","เทียบค่ามัธยฐานคู่แข่ง"],["vs last year","เทียบปีก่อน"],["vs budget","เทียบงบประมาณ"],["vs target","เทียบเป้าหมาย"],["vs market","เทียบตลาด"],["vs median","เทียบค่ามัธยฐาน"],["vs plan","เทียบแผน"],["vs LY","เทียบปีก่อน"],["target met","ถึงเป้าหมาย"],["missed by","พลาดไป"],["surplus","เกินเป้า"],["ahead by","นำอยู่"],["ahead","นำอยู่"],["to sell","ยังต้องขาย"],["of target secured","ของเป้าหมายที่ได้มาแล้ว"],["secured","ได้มาแล้ว"],["room nights","คืนห้องพัก"],["roomnights","คืนห้องพัก"],["rooms booked","ห้องที่จอง"],["of 38 rooms","จาก 38 ห้อง"],["days recorded","วันที่บันทึกไว้"],["Groups & other","กลุ่ม & อื่น ๆ"],["Corporate & crew","องค์กร & ลูกเรือ"],["Wholesale","ขายส่ง"],["Direct","ช่องทางตรง"],["from direct","จากช่องทางตรง"],["net roomnights","คืนห้องพักสุทธิ"],["Showing","แสดง"],["newest first","ใหม่สุดก่อน"],["click a row to read the message","คลิกแถวเพื่ออ่านข้อความ"],["Second layer","เลเยอร์ที่สอง"],["Generated","สร้างเมื่อ"],["Rebuilt","สร้างใหม่เมื่อ"],["Built","สร้างเมื่อ"],["Illustrative data","ข้อมูลตัวอย่าง"],["in progress","กำลังดำเนินการ"],["minutes ago","นาทีที่แล้ว"],["hours ago","ชั่วโมงที่แล้ว"],["hour ago","ชั่วโมงที่แล้ว"],["Just now","เมื่อสักครู่"],["PMS updated","PMS อัปเดตเมื่อ"],["Own rates","อัตราของเรา"],["Pick-up snapshot","บันทึกภาพยอดจองเพิ่ม"],["Last fetch","ดึงข้อมูลล่าสุด"],["History:","ประวัติ:"],["days of snapshots collected","วันของข้อมูลที่เก็บไว้"],["PMS month revenue","รายได้รายเดือนจาก PMS"],["Lead time","ระยะเวลาจองล่วงหน้า"],["median","ค่ามัธยฐาน"],["Blended ADR","ADR แบบผสม"],["Q3 revenue","รายได้ไตรมาส 3"],["Q3 target","เป้าหมายไตรมาส 3"],["of the annual target secured","ของเป้าหมายรายปีที่ได้มาแล้ว"],["booked, not earned","ยอดจอง ไม่ใช่รายได้ที่รับรู้แล้ว"],["Revenue for a month that has not finished is","รายได้ของเดือนที่ยังไม่จบคือ"],["Last year is that month’s","ปีก่อนคือยอดของเดือนนั้นที่"],["completed","จบแล้ว"],["exactly as written to the channel.","ตรงตามที่เขียนไปยังช่องทางขาย"],["Started","เริ่ม"],["nights","คืน"],["revenue","รายได้"],["plan","แผน"],["Monthly report","รายงานรายเดือน"],["Weekly report","รายงานรายสัปดาห์"],["Quarterly review","บทวิเคราะห์รายไตรมาส"],["Annual Plan —","แผนประจำปี —"],["Quarter plan —","แผนไตรมาส —"],["in progress","กำลังดำเนินการ"],["Week","สัปดาห์"],["Quarter","ไตรมาส"],["accepted","ยอมรับ"],["skipped","ข้าม"],["countered","เสนอกลับ"],["decisions waiting","รายการรอการตัดสินใจ"],["jobs running","งานกำลังทำงาน"],["runs in the last 12 h","ครั้งใน 12 ชม. ล่าสุด"],["runs","ครั้ง"],["flags raised","สัญญาณเตือนที่แจ้ง"],["flags","สัญญาณเตือน"],["dates loaded","วันที่โหลดแล้ว"],["records","ระเบียน"],["Last run","ทำงานล่าสุด"],["Refreshed","รีเฟรชเมื่อ"],["remaining","คงเหลือ"],["ago","ที่แล้ว"],["pending","รอดำเนินการ"],["hotels","โรงแรม"],["errors","ข้อผิดพลาด"],["competitors","คู่แข่ง"],["messages","ข้อความ"],["bookings","การจอง"],["attempts succeeded","ครั้งที่สำเร็จจากการพยายาม"],["rate-days","วัน-อัตรา"],["room types","ประเภทห้อง"],["days","วัน"],["Tonight’s rate","อัตราคืนนี้"],["is 21.6% below the","ต่ำกว่า 21.6% เทียบกับ"],["last year","ปีก่อน"]]};
 /* ============================================================
    Revenue Sentinel Control Center — shell behaviour + chart module
    Every chart is inline SVG drawn from CSS custom properties, so a
@@ -6665,7 +6754,65 @@ const $$ = (s,r) => Array.from((r||document).querySelectorAll(s));
 const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt = n => Number(n).toLocaleString('en-US');
-const money = n => '฿' + fmt(Math.round(n));
+const money = n => fmtMoney(n);
+
+/* ============================================================
+   Currency — the product prices in Thai baht; USD is a reading aid.
+   The rate is fetched once per calendar day (both sources publish a
+   single daily fix just after midnight UTC) and cached in between.
+   ============================================================ */
+const FX_KEY = 'rs-cc-fx';
+const FX_FALLBACK = {rate: 0.02987, asOf: '2026-09-24', source: 'last known rate'};
+const FX_SOURCES = [
+  {url: 'https://open.er-api.com/v6/latest/THB', name: 'exchangerate-api.com',
+   read: d => d && d.result === 'success' && {rate: d.rates.USD, asOf: (d.time_last_update_utc || '').slice(5, 16)}},
+  {url: 'https://api.frankfurter.dev/v1/latest?base=THB&symbols=USD', name: 'Frankfurter / ECB',
+   read: d => d && d.rates && {rate: d.rates.USD, asOf: d.date}}
+];
+
+let FX = Object.assign({}, FX_FALLBACK);
+const today = () => new Date().toLocaleDateString('en-CA');   // local calendar day
+
+function loadFx(){
+  try {
+    const c = JSON.parse(localStorage.getItem(FX_KEY) || 'null');
+    if(c && c.rate) FX = c;
+    return c && c.day === today();
+  } catch(e){ return false; }
+}
+
+async function refreshFx(){
+  for(const src of FX_SOURCES){
+    try {
+      const res = await fetch(src.url, {cache: 'no-store'});
+      if(!res.ok) continue;
+      const got = src.read(await res.json());
+      if(!got || !(got.rate > 0)) continue;
+      FX = {rate: got.rate, asOf: got.asOf, source: src.name, day: today()};
+      try { localStorage.setItem(FX_KEY, JSON.stringify(FX)); } catch(e){}
+      return true;
+    } catch(e){ /* offline, blocked by file:// CORS, or the source is down — try the next */ }
+  }
+  return false;
+}
+
+let CUR = 'THB';
+
+/* Baht in, the active currency out — shared by the charts and the page text so a
+   figure never reads one way in a card and another on an axis. */
+function fmtMoney(thb, style){
+  if(CUR === 'THB'){
+    if(style === 'M') return '฿' + (thb/1e6).toFixed(2) + 'M';
+    if(style === 'k') return '฿' + Math.round(thb/1e3) + 'k';
+    return '฿' + Math.round(thb).toLocaleString('en-US');
+  }
+  const v = thb * FX.rate;
+  const a = Math.abs(v);
+  if(style && a >= 1e6) return '$' + (v/1e6).toFixed(2) + 'M';
+  if(style && a >= 1e3) return '$' + Math.round(v/1e3).toLocaleString('en-US') + 'k';
+  if(a > 0 && a < 100) return '$' + v.toFixed(2);
+  return '$' + Math.round(v).toLocaleString('en-US');
+}
 
 function palette(){
   return {
@@ -6685,7 +6832,7 @@ const stagger = (i, n) => n < 2 ? 0 : Math.round(i / (n - 1) * ASSEMBLE);
 function axisLabel(v, unit){
   if(unit === '฿') return money(v);
   if(unit === '%') return Math.round(v) + '%';
-  if(unit === 'M') return '฿' + (v/1e6).toFixed(1) + 'M';
+  if(unit === 'M') return CUR === 'THB' ? '฿' + (v/1e6).toFixed(1) + 'M' : fmtMoney(v, 'M');
   return fmt(Math.round(v)) + (unit || '');
 }
 
@@ -6717,7 +6864,7 @@ function vbars(s){
   if(s.target != null){
     const y = T + ih - ih*s.target/max;
     g += `<line x1="${L}" y1="${y}" x2="${W-R}" y2="${y}" stroke="${p.out}" stroke-width="1.6" stroke-dasharray="6 5"/>`;
-    g += `<text x="${W-R}" y="${y-7}" text-anchor="end" font-size="10.5" font-weight="600" fill="${p.t2}">${esc(s.targetLabel||'Target')}</text>`;
+    g += `<text x="${W-R}" y="${y-7}" text-anchor="end" font-size="10.5" font-weight="600" fill="${p.t2}">${esc(t(s.targetLabel||'Target'))}</text>`;
   }
   (s.xLabels||[]).forEach(lab=>{
     const x = L + bw*lab[0] + bw*0.5;
@@ -6844,14 +6991,25 @@ function ring(s){
   segs.forEach(seg=>{
     const frac = Math.max(0, Math.min(1, seg[0]/100));
     if(frac <= 0) return;
-    g += `<circle class="rs-arc" style="--dash:${(circ*frac).toFixed(2)};--circ:${circ.toFixed(2)};animation-delay:${Math.round(acc*820)}ms;animation-duration:${Math.max(220, Math.round(frac*820))}ms"`
+    /* Each segment is rotated to its own start angle rather than pushed there with a
+       dash offset. An offset is measured against the dash pattern's total length, so
+       the moment the sweep animation changes that length every segment after the first
+       slides off its start. Rotating leaves the dash at path position zero, where the
+       length cannot move it. */
+    /* The sweep is a transition, not a keyframe animation: the final dash is written
+       onto the element either way, so a tab that never runs the transition still shows
+       a correct ring rather than an empty one. */
+    const dash = circ * frac, gap = circ - dash;
+    const delay = Math.round(acc*820), dur = Math.max(220, Math.round(frac*820));
+    g += `<circle class="rs-arc" data-arc="${dash.toFixed(2)} ${gap.toFixed(2)}"`
+       + ` style="transition:stroke-dasharray ${dur}ms var(--ease) ${delay}ms"`
        + ` cx="${c}" cy="${c}" r="${r}" fill="none" stroke="${p[seg[1]]||p.mint}" stroke-width="${sw}"`
-       + ` stroke-linecap="butt" stroke-dasharray="${(circ*frac).toFixed(2)} ${(circ*(1-frac)).toFixed(2)}"`
-       + ` stroke-dashoffset="${(-circ*acc).toFixed(2)}" transform="rotate(-90 ${c} ${c})"/>`;
+       + ` stroke-linecap="butt" stroke-dasharray="0 ${circ.toFixed(2)}"`
+       + ` transform="rotate(${(-90 + acc*360).toFixed(3)} ${c} ${c})"/>`;
     acc += frac;
   });
   g += `<text class="rs-val" style="animation-delay:700ms" x="${c}" y="${c+2}" text-anchor="middle" font-size="${s.big||27}" font-weight="600" fill="${p.t1}">${esc(s.centre||'')}</text>`;
-  if(s.centreSub) g += `<text x="${c}" y="${c+20}" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.2" fill="${p.t2}">${esc(s.centreSub)}</text>`;
+  if(s.centreSub) g += `<text x="${c}" y="${c+20}" text-anchor="middle" font-size="9.5" font-weight="700" letter-spacing="1.2" fill="${p.t2}">${esc(t(s.centreSub))}</text>`;
   return svg(size,size,g,s.label,'none');
 }
 
@@ -6906,6 +7064,11 @@ function primeLines(root){
     path.style.setProperty('--len', len);
     path.style.strokeDasharray = len;
   });
+  const arcs = $$('circle[data-arc]', root);
+  if(!arcs.length) return;
+  const settle = () => arcs.forEach(a => { a.style.strokeDasharray = a.dataset.arc; });
+  requestAnimationFrame(settle);   // one frame later, so the transition has a start value
+  setTimeout(settle, 60);          // and again, in case frames are not being served
 }
 
 function drawAll(root){
@@ -6928,9 +7091,32 @@ function drawAll(root){
 const COUNTABLE = '.k-value.num, .tile .v.num, .metric-hero .big.num, .gauge .v.num, .pk-sum b';
 const NUMERIC = /^([^\d-]*?)(-?\d[\d,]*(?:\.\d+)?)(.*)$/s;
 
-function countUp(root){
+/* A money figure counts up through the currency formatter, so the run-up reads in
+   whatever currency is showing and the wrapper survives it. */
+function animateMoney(span){
+  const target = Number(span.dataset.thb), sign = span.dataset.sign, style = span.dataset.style;
+  const settled = () => CUR === 'THB' ? span.dataset.text : sign + fmtMoney(Math.abs(target), style);
+  span.textContent = settled();
   if(REDUCED()) return;
+  let done = false;
+  const start = performance.now(), dur = 900;
+  const frame = now => {
+    if(done) return;
+    const t = Math.min(1, (now - start) / dur);
+    if(t < 1){
+      span.textContent = sign + fmtMoney(Math.abs(target) * (1 - Math.pow(1 - t, 3)), style);
+      requestAnimationFrame(frame);
+    } else { done = true; span.textContent = settled(); }
+  };
+  requestAnimationFrame(frame);
+  setTimeout(() => { if(!done){ done = true; span.textContent = settled(); } }, dur + 600);
+}
+
+function countUp(root){
   $$(COUNTABLE, root || document).forEach(el=>{
+    const cash = $$('.money', el);
+    if(cash.length){ cash.forEach(animateMoney); return; }
+    if(REDUCED()) return;
     const raw = el.dataset.final != null ? el.dataset.final : el.textContent.trim();
     const m = raw.match(NUMERIC);
     if(!m) return;
@@ -6997,6 +7183,183 @@ function initShell(){
     Array.from(g.children).forEach(x=>x.setAttribute('aria-pressed','false'));
     b.setAttribute('aria-pressed','true');
   }));
+}
+
+/* ---------- money in the page text ----------
+   Static markup is written in baht. Each amount is wrapped once, keeping its exact
+   original text, so switching back to THB restores the page character for character
+   rather than reformatting it. */
+const MONEY_RE = /([+\-\u2212]?)\u0e3f\s?(\d[\d,]*(?:\.\d+)?)([kM])?/g;
+const SKIP_TAGS = {SCRIPT:1, STYLE:1, TEXTAREA:1, svg:1};
+
+function wrapMoney(root){
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      if(!n.nodeValue || n.nodeValue.indexOf('\u0e3f') < 0) return NodeFilter.FILTER_REJECT;
+      for(let p = n.parentNode; p && p !== root; p = p.parentNode){
+        if(SKIP_TAGS[p.nodeName] || (p.classList && p.classList.contains('money')))
+          return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const targets = [];
+  for(let n = walker.nextNode(); n; n = walker.nextNode()) targets.push(n);
+  targets.forEach(node=>{
+    const frag = document.createDocumentFragment();
+    let last = 0, m;
+    MONEY_RE.lastIndex = 0;
+    while((m = MONEY_RE.exec(node.nodeValue))){
+      if(m.index > last) frag.appendChild(document.createTextNode(node.nodeValue.slice(last, m.index)));
+      const mult = m[3] === 'M' ? 1e6 : m[3] === 'k' ? 1e3 : 1;
+      const span = document.createElement('span');
+      span.className = 'money';
+      span.dataset.thb = String(parseFloat(m[2].replace(/,/g, '')) * mult);
+      span.dataset.sign = m[1] === '+' ? '+' : (m[1] ? '\u2212' : '');
+      span.dataset.style = m[3] || '';
+      span.dataset.text = m[0];
+      span.textContent = m[0];
+      frag.appendChild(span);
+      last = m.index + m[0].length;
+    }
+    if(last < node.nodeValue.length) frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+    node.parentNode.replaceChild(frag, node);
+  });
+}
+
+function paintMoney(root){
+  $$('.money', root || document).forEach(el=>{
+    if(CUR === 'THB'){ el.textContent = el.dataset.text; return; }
+    el.textContent = el.dataset.sign + fmtMoney(Math.abs(Number(el.dataset.thb)), el.dataset.style);
+  });
+}
+
+function setCurrency(code){
+  CUR = code;
+  try { localStorage.setItem('rs-cc-currency', code); } catch(e){}
+  paintMoney();
+  const note = $('#fx-note');
+  if(note){
+    note.hidden = code === 'THB';
+    note.textContent = '1 \u0e3f = $' + FX.rate.toFixed(4) + ' \u00b7 ' + FX.asOf;
+    note.title = 'Source: ' + (FX.source || FX_FALLBACK.source) + '. Fetched once a day.';
+  }
+  const active = $('.page:not([hidden])');
+  drawAll(active || document);
+  $$('.modal.open,.drawer.open').forEach(m=>drawAll(m));
+}
+
+function initCurrency(){
+  const seg = $('#currency-seg');
+  if(!seg) return;
+  let saved = 'THB';
+  try { saved = localStorage.getItem('rs-cc-currency') || 'THB'; } catch(e){}
+  wrapMoney(document.body);
+  seg.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    setCurrency(b.dataset.cur);
+  });
+  $$('button', seg).forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.cur === saved)));
+  const fresh = loadFx();
+  setCurrency(saved);
+  if(!fresh) refreshFx().then(ok=>{ if(ok) setCurrency(CUR); });
+}
+
+/* ============================================================
+   Language — the interface switches; PMS values, numbers and the
+   generated prose stay as written. See build/i18n.py for the rule.
+   ============================================================ */
+const DICT = (window.RS_I18N || {exact:{}, parts:[]});
+let LANG = 'en';
+const PART_RE = {};
+
+function translate(text){
+  const key = text.trim();
+  if(!key) return null;
+  const hit = DICT.exact[key];
+  if(hit) return text.replace(key, hit);
+  let out = text, touched = false;
+  for(const [en, th] of DICT.parts){
+    if(out.indexOf(en) < 0) continue;
+    const re = PART_RE[en] || (PART_RE[en] = new RegExp(
+      (/^\w/.test(en) ? '\\b' : '') + en.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') +
+      (/\w$/.test(en) ? '\\b' : ''), 'g'));
+    const next = out.replace(re, th);
+    if(next !== out){ out = next; touched = true; }
+  }
+  return touched ? out : null;
+}
+
+function collectStrings(root){
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+    acceptNode(n){
+      if(!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+      for(let p = n.parentNode; p && p !== root; p = p.parentNode){
+        if(SKIP_TAGS[p.nodeName]) return NodeFilter.FILTER_REJECT;
+        if(p.classList && (p.classList.contains('money') || p.classList.contains('prose')
+            || p.classList.contains('quote') || p.classList.contains('news-links')))
+          return NodeFilter.FILTER_REJECT;
+      }
+      return NodeFilter.FILTER_ACCEPT;
+    }
+  });
+  const out = [];
+  for(let n = walker.nextNode(); n; n = walker.nextNode()) out.push(n);
+  return out;
+}
+
+const I18N_ATTRS = ['aria-label', 'placeholder', 'title'];
+
+function applyLang(code){
+  LANG = code;
+  try { localStorage.setItem('rs-cc-lang', code); } catch(e){}
+  document.documentElement.setAttribute('lang', code === 'th' ? 'th' : 'en');
+
+  collectStrings(document.body).forEach(node=>{
+    if(node.__en == null) node.__en = node.nodeValue;
+    if(code === 'en'){ node.nodeValue = node.__en; return; }
+    const t = translate(node.__en);
+    node.nodeValue = t == null ? node.__en : t;
+  });
+
+  $$('[aria-label],[placeholder],[title]').forEach(el=>{
+    I18N_ATTRS.forEach(a=>{
+      const cur = el.getAttribute(a);
+      if(cur == null) return;
+      const store = 'en' + a.replace(/-/g, '');
+      if(el.dataset[store] == null) el.dataset[store] = cur;
+      if(code === 'en'){ el.setAttribute(a, el.dataset[store]); return; }
+      const t = translate(el.dataset[store]);
+      el.setAttribute(a, t == null ? el.dataset[store] : t);
+    });
+  });
+
+  $$('[data-nav]').forEach(a=>{
+    const p = $('#page-' + a.dataset.nav);
+    if(p) p.dataset.title = a.textContent.replace(/\s*\d+\s*$/, '').trim();
+  });
+  const active = $('.page:not([hidden])');
+  const title = $('#topbar-title');
+  if(active && title && active.dataset.title) title.textContent = active.dataset.title;
+
+  drawAll(active || document);
+  $$('.modal.open,.drawer.open').forEach(m=>drawAll(m));
+  if(window.__renderFeed) window.__renderFeed();
+}
+
+function t(s){ return LANG === 'th' && DICT.exact[s] ? DICT.exact[s] : s; }
+
+function initLang(){
+  const seg = $('#lang-seg');
+  if(!seg) return;
+  let saved = 'en';
+  try { saved = localStorage.getItem('rs-cc-lang') || 'en'; } catch(e){}
+  seg.addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    applyLang(b.dataset.lang);
+  });
+  $$('button', seg).forEach(b=>b.setAttribute('aria-pressed', String(b.dataset.lang === saved)));
+  if(saved === 'th') applyLang('th'); else LANG = 'en';
 }
 
 /* ---------- router (single-file build) ---------- */
@@ -7101,18 +7464,36 @@ function initTabs(){
       });
     }
   }));
-  $$('.chips').forEach(g=>g.addEventListener('click', e=>{
-    const b = e.target.closest('button'); if(!b) return;
-    $$('button', g).forEach(x=>x.setAttribute('aria-pressed','false'));
-    b.setAttribute('aria-pressed','true');
-    const f = b.dataset.filter;
-    if(!g.dataset.filters) return;
-    $$('[data-filter-set="'+g.dataset.filters+'"]').forEach(row=>{
-      row.hidden = !(f === 'all' || (row.dataset.tags||'').split(' ').indexOf(f) > -1);
+  $$('.chips[data-filters]').forEach(g=>{
+    g.addEventListener('click', e=>{
+      const b = e.target.closest('button'); if(!b) return;
+      $$('button', g).forEach(x=>x.setAttribute('aria-pressed','false'));
+      b.setAttribute('aria-pressed','true');
+      applyFilter(g.dataset.filters);
     });
-    const c = $('#'+g.dataset.filters+'-count');
-    if(c) c.textContent = $$('[data-filter-set="'+g.dataset.filters+'"]').filter(r=>!r.hidden).length;
-  }));
+  });
+  $$('input[data-search]').forEach(input=>{
+    input.addEventListener('input', ()=>applyFilter(input.dataset.search));
+  });
+}
+
+/* A chip and the search box narrow the same list, so they are applied together
+   rather than each overwriting what the other just did. */
+function applyFilter(set){
+  const chips = $('.chips[data-filters="' + set + '"]');
+  const active = chips && chips.querySelector('[aria-pressed="true"]');
+  const tag = active ? active.dataset.filter : 'all';
+  const input = $('input[data-search="' + set + '"]');
+  const q = input ? input.value.toLowerCase().trim() : '';
+  let shown = 0;
+  $$('[data-filter-set="' + set + '"]').forEach(row=>{
+    const byTag = tag === 'all' || (row.dataset.tags || '').split(' ').indexOf(tag) > -1;
+    const byText = !q || row.textContent.toLowerCase().indexOf(q) > -1;
+    row.hidden = !(byTag && byText);
+    if(!row.hidden) shown++;
+  });
+  const count = $('#' + set + '-count');
+  if(count) count.textContent = shown;
 }
 
 /* ---------- notifications ---------- */
@@ -7129,9 +7510,10 @@ function initNotifications(){
   const render = ()=>{
     list.innerHTML = FEED.map(n=>
       `<li class="${n.c}${n.unread?' unread':''}"><span class="ic" aria-hidden="true">${n.i}</span>`
-      + `<span><b>${esc(n.t)}</b><p>${esc(n.b)}</p><time>${esc(n.w)}</time></span></li>`).join('');
+      + `<span><b>${esc(t(n.t))}</b><p>${esc(t(n.b))}</p><time>${esc(t(n.w))}</time></span></li>`).join('');
   };
   render();
+  window.__renderFeed = render;
   bell.addEventListener('click', e=>{ e.stopPropagation(); panel.classList.toggle('open'); });
   document.addEventListener('click', e=>{
     if(!e.target.closest('#notif') && !e.target.closest('#bell')) panel.classList.remove('open');
@@ -7150,8 +7532,8 @@ function toast(kind, title, body, when, action){
   const el = document.createElement('div');
   el.className = 'toast ' + (cls[kind] || '');
   el.innerHTML = `<span class="ic" aria-hidden="true">${ic[kind]||'i'}</span>`
-    + `<span style="min-width:0"><b>${esc(title)}</b><p>${esc(body)}</p>`
-    + `<span class="meta"><span>${esc(when)}</span>${action?`<a href="#" onclick="return false">${esc(action)}</a>`:''}</span></span>`
+    + `<span style="min-width:0"><b>${esc(t(title))}</b><p>${esc(t(body))}</p>`
+    + `<span class="meta"><span>${esc(t(when))}</span>${action?`<a href="#" onclick="return false">${esc(t(action))}</a>`:''}</span></span>`
     + `<button class="x" aria-label="Dismiss">✕</button>`;
   const kill = ()=>{ el.classList.add('out'); setTimeout(()=>el.remove(), 240); };
   el.querySelector('.x').addEventListener('click', kill);
@@ -7180,7 +7562,7 @@ function initDemo(){
 
 /* ---------- boot ---------- */
 function boot(){
-  initShell(); initLayers(); initTabs(); initNotifications(); initDemo();
+  initShell(); initLayers(); initTabs(); initNotifications(); initDemo(); initCurrency(); initLang();
   if(!initRouter()){ drawAll(); countUp(); }
   let t;
   window.addEventListener('resize', ()=>{
@@ -7198,7 +7580,9 @@ function boot(){
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
 else boot();
 
-window.RS = {drawAll, countUp, toast, openLayer, closeLayers, money, fmt};
+window.RS = {drawAll, countUp, toast, openLayer, closeLayers, money, fmt,
+             setCurrency, refreshFx, fx: () => FX, cur: () => CUR,
+             applyLang, lang: () => LANG};
 })();
 
 </script>
